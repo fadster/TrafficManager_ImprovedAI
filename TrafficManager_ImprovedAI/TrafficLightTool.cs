@@ -2420,8 +2420,6 @@ namespace TrafficManager_ImprovedAI
 
                 var numLanes = 0;
 
-                var nl = 0;
-
                 while (num3 < info.m_lanes.Length && num2 != 0u)
                 {
                     if (info.m_lanes[num3].m_laneType != NetInfo.LaneType.Pedestrian &&

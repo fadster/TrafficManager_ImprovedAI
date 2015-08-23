@@ -47,25 +47,38 @@ namespace TrafficManager_ImprovedAI
 
 			if (!LoadingExtension.Instance.detourInited)
 			{
-				LoadingExtension.Instance.revertMethods[0] = RedirectionHelper.RedirectCalls(
-					typeof (CarAI).GetMethod("CalculateSegmentPosition",
-						BindingFlags.NonPublic | BindingFlags.Instance,
-						null,
-						new Type[]
-						{
-							typeof (ushort), typeof (Vehicle).MakeByRefType(), typeof (PathUnit.Position),
-							typeof (PathUnit.Position), typeof (uint), typeof (byte), typeof (PathUnit.Position),
-							typeof (uint), typeof (byte), typeof (Vector3).MakeByRefType(),
-							typeof (Vector3).MakeByRefType(), typeof (float).MakeByRefType()
-						},
-						null),
-					typeof (CustomCarAI).GetMethod("CalculateSegmentPosition"));
+                Debug.Log("1");
+                LoadingExtension.Instance.revertMethods[0] = RedirectionHelper.RedirectCalls(
+                    typeof(CarAI).GetMethod("CalculateSegmentPosition",
+                        BindingFlags.NonPublic | BindingFlags.Instance,
+                        null,
+                        new Type[] {
+                            typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(PathUnit.Position),
+                            typeof(PathUnit.Position), typeof(uint), typeof(byte), typeof(PathUnit.Position),
+                            typeof(uint), typeof(byte), typeof(Vector3).MakeByRefType(),
+                            typeof(Vector3).MakeByRefType(), typeof(float).MakeByRefType()
+                        },
+                        null),
+                    typeof(CustomCarAI).GetMethod("CalculateSegmentPosition", BindingFlags.NonPublic | BindingFlags.Instance,
+                        null,
+                        new Type[] {
+                            typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(PathUnit.Position),
+                            typeof(PathUnit.Position), typeof(uint), typeof(byte), typeof(PathUnit.Position),
+                            typeof(uint), typeof(byte), typeof(Vector3).MakeByRefType(),
+                            typeof(Vector3).MakeByRefType(), typeof(float).MakeByRefType()
+                        },
+                        null));
 
-				LoadingExtension.Instance.revertMethods[1] = RedirectionHelper.RedirectCalls(
-					typeof (RoadBaseAI).GetMethod("SimulationStep",
-						new Type[] {typeof (ushort), typeof (NetNode).MakeByRefType()}),
-					typeof (CustomRoadAI).GetMethod("SimulationStep", BindingFlags.NonPublic | BindingFlags.Instance));
+                Debug.Log("2");
+                LoadingExtension.Instance.revertMethods[1] = RedirectionHelper.RedirectCalls(
+                    typeof(RoadBaseAI).GetMethod("SimulationStep",
+                        new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }),
+                    typeof(CustomRoadAI).GetMethod("SimulationStep", new Type[] {
+                        typeof(ushort),
+                        typeof(NetNode).MakeByRefType()
+                    }));
 
+                Debug.Log("3");
 				LoadingExtension.Instance.revertMethods[2] = RedirectionHelper.RedirectCalls(typeof (HumanAI).GetMethod("CheckTrafficLights",
 					BindingFlags.NonPublic | BindingFlags.Instance,
 					null,
@@ -93,8 +106,6 @@ namespace TrafficManager_ImprovedAI
 	{		
 		public static LoadingExtension Instance = null;
 
-		public static bool PathfinderIncompatibility = false;
-
 		List<RedirectCallsState> m_redirectionStates = new List<RedirectCallsState>();
 
 		public RedirectCallsState[] revertMethods = new RedirectCallsState[8];
@@ -104,8 +115,6 @@ namespace TrafficManager_ImprovedAI
 		public TrafficLightTool TrafficLightTool = null;
 
 		public UIBase UI;
-
-		private ToolBase _originalTool = null;
 
 		public bool detourInited = false;
 
@@ -139,11 +148,7 @@ namespace TrafficManager_ImprovedAI
 			{
 				ReplacePathManager();
 				CustomCarAI.RedirectCalls(m_redirectionStates);
-				LoadingExtension.PathfinderIncompatibility = true;
-			}
 
-			if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame)
-			{
 				if (Instance == null)
 				{
 					Instance = this;

@@ -127,7 +127,7 @@ namespace TrafficManager_ImprovedAI
                     int num9 = b >> 1;
                     int j = 0, count = 0; // the count variable is used to keep track of how many of the next 5 lanes are congested
                     //int j = 0;
-                    while (j < 5)
+                    while (j < CustomPathFind.lookaheadLanes)
                     {
                         bool flag4;
                         if (PathUnit.GetNextPosition(ref path, ref num9, out pathPos, out flag4))
@@ -158,7 +158,7 @@ namespace TrafficManager_ImprovedAI
 
                     // if at least 2 out of the next 5 lanes are congested and it hasn't tried to find a new path yet, then calculates a new path and flags it as such
                     // the amounf of congested lanes necessary to calculate a new path can be tweaked to reduce the amount of new paths being calculated, if performance in bigger cities is severely affected
-                    if (count >= 2 && (leaderData.m_flags & (Vehicle.Flags)1073741824) == 0)
+                    if (count >= CustomPathFind.congestedLaneThreshold && (leaderData.m_flags & (Vehicle.Flags)1073741824) == 0)
                     {
                         leaderData.m_flags |= (Vehicle.Flags)1073741824;
                         this.InvalidPath(vehicleID, ref vehicleData, leaderID, ref leaderData);
@@ -342,7 +342,7 @@ namespace TrafficManager_ImprovedAI
             base.SimulationStep(vehicleID, ref vehicleData, ref frameData, leaderID, ref leaderData, lodPhysics);
         }
 
-		public void CalculateSegmentPosition(ushort vehicleID, ref Vehicle vehicleData, PathUnit.Position nextPosition,
+		protected override void CalculateSegmentPosition(ushort vehicleID, ref Vehicle vehicleData, PathUnit.Position nextPosition,
 			PathUnit.Position position, uint laneID, byte offset, PathUnit.Position prevPos, uint prevLaneID,
 			byte prevOffset, out Vector3 pos, out Vector3 dir, out float maxSpeed)
 		{

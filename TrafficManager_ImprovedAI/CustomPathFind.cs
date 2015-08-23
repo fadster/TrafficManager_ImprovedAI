@@ -90,8 +90,41 @@ namespace TrafficManager_ImprovedAI
         private NetInfo.LaneType m_laneTypes;
         private VehicleInfo.VehicleType m_vehicleTypes;
 
-		public float m_minLaneSpace = 5f;
-		public float m_congestionCostFactor = 3f;
+        private const float MIN_CONGESTION_COST_FACTOR = 3f;
+        private const float MAX_CONGESTION_COST_FACTOR = 100f;
+        private const float MIN_MIN_LANE_SPACE = 5f;
+        private const float MAX_MIN_LANE_SPACE = 50f;
+
+        private static float m_congestionCostFactor = 3f;
+        private static float m_minLaneSpace = 5f;
+
+        public static float congestionCostFactor {
+            get { return m_congestionCostFactor; }
+            set { m_congestionCostFactor = Mathf.Min(Mathf.Max(value, MIN_CONGESTION_COST_FACTOR), MAX_CONGESTION_COST_FACTOR); }
+        }
+
+        public static float minLaneSpace {
+            get { return m_minLaneSpace; }
+            set { m_minLaneSpace = Mathf.Min(Mathf.Max(value, MIN_MIN_LANE_SPACE), MAX_MIN_LANE_SPACE); }
+        }
+
+        private const int MIN_NUM_LOOKAHEAD_LANES = 1;
+        private const int MAX_NUM_LOOKAHEAD_LANES = 20;
+        private const int MIN_CONGESTED_LANE_THRESHOLD = 1;
+        private const int MAX_CONGESTED_LANE_THRESHOLD = 20;
+
+        private static int m_lookaheadLanes = 5;
+        private static int m_congestedLaneThreshold = 2;
+
+        public static int lookaheadLanes {
+            get { return m_lookaheadLanes; }
+            set { m_lookaheadLanes = Mathf.Min(Mathf.Max(value, MIN_NUM_LOOKAHEAD_LANES), MAX_NUM_LOOKAHEAD_LANES); }
+        }
+
+        public static int congestedLaneThreshold {
+            get { return m_congestedLaneThreshold; }
+            set { m_congestedLaneThreshold = Mathf.Min(Mathf.Min(Mathf.Max(value, MIN_CONGESTED_LANE_THRESHOLD), MAX_CONGESTED_LANE_THRESHOLD), m_lookaheadLanes); }
+        }
 
         private void Awake()
         {
@@ -1046,7 +1079,7 @@ namespace TrafficManager_ImprovedAI
             Vector3 dir2 = NetManager.instance.m_segments.m_buffer[seg2].GetDirection(nodeID);
 			NetLane.Flags flags = (NetLane.Flags) NetManager.instance.m_lanes.m_buffer[lane1].m_flags;
 
-			if ((flags & NetLane.Flags.LeftForwardRight) == 0) {
+            if ((flags & NetLane.Flags.LeftForwardRight) == 0 || seg1 == seg2) {
 				return true;
 			} else if (Vector3.Angle(dir1, dir2) > 150f) {
 				return (flags & NetLane.Flags.Forward) == NetLane.Flags.Forward;

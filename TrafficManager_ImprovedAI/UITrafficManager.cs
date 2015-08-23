@@ -26,6 +26,8 @@ namespace TrafficManager_ImprovedAI
 
         private static bool inited = false;
 
+        private static bool _aiPanelVisible = false;
+
         public static UIState uistate
         {
             set
@@ -36,18 +38,9 @@ namespace TrafficManager_ImprovedAI
                     buttonPrioritySigns.focusedBgSprite = "ButtonMenu";
                     buttonManualControl.focusedBgSprite = "ButtonMenu";
                     buttonTimedMain.focusedBgSprite = "ButtonMenu";
-
-                    
-                    //buttonLaneRestrictions.focusedBgSprite = "ButtonMenu";
                     buttonCrosswalk.focusedBgSprite = "ButtonMenu";
                     buttonClearTraffic.focusedBgSprite = "ButtonMenu";
 					buttonLaneChange.focusedBgSprite = "ButtonMenu";
-
-                    if (!LoadingExtension.PathfinderIncompatibility)
-                    {
-                        // buttonLaneChange.focusedBgSprite = "ButtonMenu";
-                        buttonToggleDespawn.focusedBgSprite = "ButtonMenu";
-                    }
                 }
 
                 _uistate = value;
@@ -60,10 +53,9 @@ namespace TrafficManager_ImprovedAI
         private static UIButton buttonManualControl;
         private static UIButton buttonTimedMain;
         private static UIButton buttonLaneChange;
-        private static UIButton buttonLaneRestrictions;
         private static UIButton buttonCrosswalk;
         private static UIButton buttonClearTraffic;
-        private static UIButton buttonToggleDespawn;
+        private static UIButton buttonImprovedAI;
 
         public static TrafficLightTool trafficLightTool;
 
@@ -76,36 +68,31 @@ namespace TrafficManager_ImprovedAI
             this.backgroundSprite = "GenericPanel";
             this.color = new Color32(75, 75, 135, 255);
             this.width = 250;
-            this.height = !LoadingExtension.PathfinderIncompatibility ? 350 : 310;
+            this.height = 350;
             this.relativePosition = new Vector3(10.48f, 80f);
 
             UILabel title = this.AddUIComponent<UILabel>();
             title.text = "Traffic Manager";
             title.relativePosition = new Vector3(65.0f, 5.0f);
 
-            if (!LoadingExtension.PathfinderIncompatibility)
-            {
-                buttonSwitchTraffic = _createButton("Switch traffic lights", new Vector3(35f, 30f), clickSwitchTraffic);
-                buttonPrioritySigns = _createButton("Add priority signs", new Vector3(35f, 70f), clickAddPrioritySigns);
-                buttonManualControl = _createButton("Manual traffic lights", new Vector3(35f, 110f), clickManualControl);
-                buttonTimedMain = _createButton("Timed traffic lights", new Vector3(35f, 150f), clickTimedAdd);
-                buttonLaneChange = _createButton("Change lanes", new Vector3(35f, 190f), clickChangeLanes);
-                //buttonLaneRestrictions = _createButton("Road Restrictions", new Vector3(35f, 230f), clickLaneRestrictions);
-                buttonCrosswalk = _createButton("Add/Remove Crosswalk", new Vector3(35f, 230f), clickCrosswalk);
-                buttonClearTraffic = _createButton("Clear Traffic", new Vector3(35f, 270f), clickClearTraffic);
-                buttonToggleDespawn = _createButton(LoadingExtension.Instance.despawnEnabled ? "Disable despawning" : "Enable despawning", new Vector3(35f, 310f), clickToggleDespawn);
+            buttonSwitchTraffic = _createButton("Switch traffic lights", new Vector3(35f, 30f), clickSwitchTraffic);
+            buttonPrioritySigns = _createButton("Add priority signs", new Vector3(35f, 70f), clickAddPrioritySigns);
+            buttonManualControl = _createButton("Manual traffic lights", new Vector3(35f, 110f), clickManualControl);
+            buttonTimedMain = _createButton("Timed traffic lights", new Vector3(35f, 150f), clickTimedAdd);
+            buttonLaneChange = _createButton("Change lanes", new Vector3(35f, 190f), clickChangeLanes);
+            buttonCrosswalk = _createButton("Add/Remove Crosswalk", new Vector3(35f, 230f), clickCrosswalk);
+            buttonClearTraffic = _createButton("Clear Traffic", new Vector3(35f, 270f), clickClearTraffic);
+            buttonImprovedAI = _createButton("Improved AI", new Vector3(35f, 310f), clickImprovedAI);
+        }
 
+        public void HideAIPanel()
+        {
+            var uiView = UIView.GetAView();
+            var aiPanel = uiView.FindUIComponent("AIPanel");
+            if (aiPanel != null) {
+                UIView.Destroy(aiPanel);
             }
-            else
-            {
-                buttonSwitchTraffic = _createButton("Switch traffic lights", new Vector3(35f, 30f), clickSwitchTraffic);
-                buttonPrioritySigns = _createButton("Add priority signs", new Vector3(35f, 70f), clickAddPrioritySigns);
-                buttonManualControl = _createButton("Manual traffic lights", new Vector3(35f, 110f), clickManualControl);
-                buttonTimedMain = _createButton("Timed traffic lights", new Vector3(35f, 150f), clickTimedAdd);
-				buttonLaneChange = _createButton("Change lanes", new Vector3(35f, 190f), clickChangeLanes);
-                buttonCrosswalk = _createButton("Add/Remove Crosswalk", new Vector3(35f, 230f), clickCrosswalk);
-                buttonClearTraffic = _createButton("Clear Traffic", new Vector3(35f, 270f), clickClearTraffic);
-            }
+            _aiPanelVisible = false;
         }
 
         private UIButton _createButton(string text, Vector3 pos, MouseEventHandler eventClick)
@@ -127,6 +114,17 @@ namespace TrafficManager_ImprovedAI
             return button;
         }
 
+        private void clickImprovedAI(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            var uiView = UIView.GetAView();
+            if (!_aiPanelVisible) {
+                uiView.AddUIComponent(typeof(AIPanel));
+                _aiPanelVisible = true;
+            } else {
+                HideAIPanel();
+            }
+        }
+
         private void clickSwitchTraffic(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (_uistate != UIState.SwitchTrafficLight)
@@ -134,7 +132,7 @@ namespace TrafficManager_ImprovedAI
                 _uistate = UIState.SwitchTrafficLight;
 
                 buttonSwitchTraffic.focusedBgSprite = "ButtonMenuFocused";
-
+                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.SwitchTrafficLight);
             }
             else
@@ -154,7 +152,7 @@ namespace TrafficManager_ImprovedAI
                 _uistate = UIState.AddStopSign;
 
                 buttonPrioritySigns.focusedBgSprite = "ButtonMenuFocused";
-
+                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.AddPrioritySigns);
             }
             else
@@ -174,7 +172,7 @@ namespace TrafficManager_ImprovedAI
                 _uistate = UIState.ManualSwitch;
 
                 buttonManualControl.focusedBgSprite = "ButtonMenuFocused";
-
+                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.ManualSwitch);
             }
             else
@@ -194,7 +192,7 @@ namespace TrafficManager_ImprovedAI
                 _uistate = UIState.TimedControlNodes;
 
                 buttonTimedMain.focusedBgSprite = "ButtonMenuFocused";
-
+                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.TimedLightsSelectNode);
             }
             else
@@ -229,7 +227,7 @@ namespace TrafficManager_ImprovedAI
                 }
             }
         }
-
+        /*
         private void clickToggleDespawn(UIComponent component, UIMouseEventParameter eventParam)
         {
             LoadingExtension.Instance.despawnEnabled = !LoadingExtension.Instance.despawnEnabled;
@@ -241,33 +239,25 @@ namespace TrafficManager_ImprovedAI
                     : "Enable despawning";
             }
         }
+        */
 
         private void clickChangeLanes(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (_uistate != UIState.LaneChange)
             {
                 _uistate = UIState.LaneChange;
-
-               // if (!LoadingExtension.PathfinderIncompatibility)
-                {
-                    buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
-                }
-
+                buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
+                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.LaneChange);
             }
             else
             {
                 _uistate = UIState.None;
-
-               // if (!LoadingExtension.PathfinderIncompatibility)
-                {
-                    buttonLaneChange.focusedBgSprite = "ButtonMenu";
-                }
-
+                buttonLaneChange.focusedBgSprite = "ButtonMenu";
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             }
         }
-
+        /*
         private void clickLaneRestrictions(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (_uistate != UIState.LaneRestrictions)
@@ -287,6 +277,7 @@ namespace TrafficManager_ImprovedAI
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             }
         }
+        */
 
         private void clickCrosswalk(UIComponent component, UIMouseEventParameter eventParam)
         {
@@ -295,7 +286,7 @@ namespace TrafficManager_ImprovedAI
                 _uistate = UIState.Crosswalk;
 
                 buttonCrosswalk.focusedBgSprite = "ButtonMenuFocused";
-
+                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.Crosswalk);
             }
             else
@@ -307,7 +298,7 @@ namespace TrafficManager_ImprovedAI
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             }
         }
-
+/*
         public override void Update()
         {
             switch (_uistate)
@@ -448,5 +439,6 @@ namespace TrafficManager_ImprovedAI
         private void _crosswalkPanel()
         {
         }
+        */
     }
 }

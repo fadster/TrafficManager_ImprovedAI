@@ -650,8 +650,6 @@ namespace TrafficManager_ImprovedAI
 
             var info = segment.Info;
 
-            var maxValue = 0f;
-
             var num2 = segment.m_lanes;
             var num3 = 0;
 
@@ -683,8 +681,6 @@ namespace TrafficManager_ImprovedAI
 
             var info = segment.Info;
 
-            var maxValue = 0f;
-
             var num2 = segment.m_lanes;
             var num3 = 0;
 
@@ -715,8 +711,6 @@ namespace TrafficManager_ImprovedAI
             var dir3 = TrafficPriority.leftHandDrive ? NetInfo.InvertDirection(dir2) : dir2;
 
             var info = segment.Info;
-
-            var maxValue = 0f;
 
             var num2 = segment.m_lanes;
             var num3 = 0;

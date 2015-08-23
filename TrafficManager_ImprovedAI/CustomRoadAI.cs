@@ -63,6 +63,7 @@ namespace TrafficManager_ImprovedAI
                     }
                     catch (Exception e)
                     {
+                        Debug.Log(e);
                         //Log.Warning("Error on Update: \n" + e.Message + "\n\nStacktrace:\n\n" + e.StackTrace);
                     }
                 }
@@ -100,7 +101,7 @@ namespace TrafficManager_ImprovedAI
             
         }
 
-        private void SimulationStep(ushort nodeID, ref NetNode data)
+        public override void SimulationStep(ushort nodeID, ref NetNode data)
         {
             var node = GetNodeSimulation(nodeID);
 

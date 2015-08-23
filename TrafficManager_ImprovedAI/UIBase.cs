@@ -87,6 +87,7 @@ namespace TrafficManager_ImprovedAI
 
             if (trafficManager != null)
             {
+                ((UITrafficManager)trafficManager).HideAIPanel();
                 UIView.Destroy(trafficManager);
             }
 
