@@ -11,6 +11,22 @@ using UnityEngine;
 
 namespace TrafficManager_ImprovedAI
 {
+/*
+    public class Debug
+    {
+        public static void Log(string s) { Console.WriteLine(s); }
+        public static void Log(Exception e) {
+            Console.WriteLine(e.ToString());
+        }
+        public static void LogWarning(string s) { Console.WriteLine(s); }
+        public static void LogError(string s) { Console.WriteLine(s); }
+    }
+
+    public class MonoBehaviour
+    {
+
+    }
+*/
     public class SerializableDataExtension : ISerializableDataExtension
     {
         public static string dataID = "TrafficManager_v0.9";
@@ -56,18 +72,21 @@ namespace TrafficManager_ImprovedAI
                 _timer.Enabled = true;
             }
         }
-
-        private static void OnLoadDataTimed(System.Object source, ElapsedEventArgs e)
+        //private
+        public static void OnLoadDataTimed(System.Object source, ElapsedEventArgs e)
+      //  public static void fuckThisDog()
         {
             byte[] data = SerializableData.LoadData(dataID);
 
             uniqueID = 0u;
+            //uniqueID = 1674161;
 
             for (var i = 0; i < data.Length - 3; i++) {
                 uniqueID = BitConverter.ToUInt32(data, i);
             }
 
             var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
+           // var filepath = "C:\\Users\\fady\\Documents\\GitHub\\TrafficManager_ImprovedAI\\Test\\obj\\Debug\\trafficManagerSave_1674161.xml";
             _timer.Enabled = false;
 
             if (!File.Exists(filepath)) {
@@ -75,11 +94,12 @@ namespace TrafficManager_ImprovedAI
                 return;
             }
 
+            Debug.Log("deserializing " + filepath);
             var configuration = Configuration.Deserialize(filepath);
+            Debug.Log("cf = " + configuration.congestionCostFactor + " ml = " + configuration.minLaneSpace + " ll " + configuration.lookaheadLanes + " cl " + configuration.congestedLaneThreshold);
 
             for (var i = 0; i < configuration.prioritySegments.Count; i++) {
-                if (
-                    !TrafficPriority.isPrioritySegment((ushort)configuration.prioritySegments[i][0],
+                if (!TrafficPriority.isPrioritySegment((ushort)configuration.prioritySegments[i][0],
                         configuration.prioritySegments[i][1])) {
                     TrafficPriority.addPrioritySegment((ushort)configuration.prioritySegments[i][0],
                         configuration.prioritySegments[i][1],
@@ -194,23 +214,34 @@ namespace TrafficManager_ImprovedAI
 
             Debug.Log("found " + lanes.Length + " lane assignments");
 
-            for (var i = 0; i < lanes.Length; i++) {
-                var split = lanes[i].Split(':');
-                uint laneId = Convert.ToUInt32(split[0]);
-                //NetLane lane = Singleton<NetManager>.instance.m_lanes.m_buffer [laneId];
-                //ushort segmentId = lane.m_segment;
-                //NetSegment segment = Singleton<NetManager>.instance.m_segments.m_buffer [segmentId];
-                //segment.Info.m_netAI.UpdateLanes(segmentId, ref segment, false);
+            var errorLane = -1;
+            try {
+                for (var i = 0; i < lanes.Length; i++) {
+                    errorLane = i;
+                    var split = lanes[i].Split(':');
+                    uint laneId = Convert.ToUInt32(split[0]);
+                    //NetLane lane = Singleton<NetManager>.instance.m_lanes.m_buffer [laneId];
+                    //ushort segmentId = lane.m_segment;
+                    //NetSegment segment = Singleton<NetManager>.instance.m_segments.m_buffer [segmentId];
+                    //segment.Info.m_netAI.UpdateLanes(segmentId, ref segment, false);
 
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneId].m_flags = Convert.ToUInt16(split[1]);
+                    Singleton<NetManager>.instance.m_lanes.m_buffer[laneId].m_flags = Convert.ToUInt16(split[1]);
+                }
+            } catch(Exception ex) {
+                Debug.Log("exception reading lane flags at lane " + errorLane + " lanes[] = [" + lanes[errorLane] + "] - " + ex);
             }
 
+            Debug.Log("cf = " + configuration.congestionCostFactor + " ml = " + configuration.minLaneSpace + " ll " + configuration.lookaheadLanes + " cl " + configuration.congestedLaneThreshold);
+
             if (configuration.congestionCostFactor > 0) {
+                Debug.Log("setting AI values");
                 CustomPathFind.congestionCostFactor = configuration.congestionCostFactor;
                 CustomPathFind.minLaneSpace = configuration.minLaneSpace;
                 CustomPathFind.lookaheadLanes = configuration.lookaheadLanes;
                 CustomPathFind.congestedLaneThreshold = configuration.congestedLaneThreshold;
             }
+
+            Debug.Log(configuration.ToString());
         }
 
         public void OnSaveData()
@@ -348,6 +379,7 @@ namespace TrafficManager_ImprovedAI
                 }
             }
 
+            var laneCount = 0;
             for (var i = 0; i < Singleton<NetManager>.instance.m_lanes.m_buffer.Length; i++)
             {
                 var laneSegment = Singleton<NetManager>.instance.m_lanes.m_buffer[i].m_segment;
@@ -355,8 +387,11 @@ namespace TrafficManager_ImprovedAI
                 if (TrafficPriority.prioritySegments.ContainsKey(laneSegment))
                 {
                     configuration.laneFlags += i + ":" + Singleton<NetManager>.instance.m_lanes.m_buffer[i].m_flags + ",";
+                    laneCount++;
                 }
             }
+
+            Debug.Log("wrote " + laneCount + " lanes out of " + Singleton<NetManager>.instance.m_lanes.m_buffer.Length);
 
             configuration.congestionCostFactor = CustomPathFind.congestionCostFactor;
             configuration.minLaneSpace = CustomPathFind.minLaneSpace;
@@ -382,10 +417,10 @@ namespace TrafficManager_ImprovedAI
         public List<int[]> timedNodeSteps = new List<int[]>();
         public List<int[]> timedNodeStepSegments = new List<int[]>();
 
-        public float congestionCostFactor = -1f;
-        public float minLaneSpace = -1f;
-        public int lookaheadLanes = -1;
-        public int congestedLaneThreshold = -1;
+        public float congestionCostFactor;
+        public float minLaneSpace;
+        public int lookaheadLanes;
+        public int congestedLaneThreshold;
 
         public void OnPreSerialize()
         {
@@ -395,9 +430,38 @@ namespace TrafficManager_ImprovedAI
         {
         }
 
+        private static void UnknownAttribute(object sender, XmlAttributeEventArgs e)
+        {
+            Debug.Log("unknown attribute " + sender.ToString() + " " + e.ToString());
+        }
+
+        private static void UnknownElement(object sender, XmlElementEventArgs e)
+        {
+            Debug.Log("unknown element " + sender.ToString() + " " + e.ToString());
+        }
+
+        private static void UnknownNode(object sender, XmlNodeEventArgs e)
+        {
+            Debug.Log("unknown node " + sender.ToString() + " " + e.ToString());
+        }
+
+        private static void UnreferencedObject(object sender, UnreferencedObjectEventArgs e)
+        {
+            Debug.Log("unreferenced object " + sender.ToString() + " " + e.ToString());
+        }
+
+        private static void RegisterEvents(ref XmlSerializer s)
+        {
+            s.UnknownAttribute += new XmlAttributeEventHandler(UnknownAttribute);
+            s.UnknownElement += new XmlElementEventHandler(UnknownElement);
+            s.UnknownNode += new XmlNodeEventHandler(UnknownNode);
+            s.UnreferencedObject += new UnreferencedObjectEventHandler(UnreferencedObject);
+        }
+
         public static void Serialize(string filename, Configuration config)
         {
             var serializer = new XmlSerializer(typeof(Configuration));
+            RegisterEvents(ref serializer);    
 
             using (var writer = new StreamWriter(filename))
             {
@@ -409,6 +473,7 @@ namespace TrafficManager_ImprovedAI
         public static Configuration Deserialize(string filename)
         {
             var serializer = new XmlSerializer(typeof(Configuration));
+            RegisterEvents(ref serializer);    
 
             try
             {
@@ -416,6 +481,7 @@ namespace TrafficManager_ImprovedAI
                 {
                     var config = (Configuration)serializer.Deserialize(reader);
                     config.OnPostDeserialize();
+                    //Console.WriteLine(config.ToString());
                     return config;
                 }
             }

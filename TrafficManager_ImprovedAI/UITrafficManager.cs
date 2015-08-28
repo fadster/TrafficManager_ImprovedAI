@@ -26,21 +26,16 @@ namespace TrafficManager_ImprovedAI
 
         private static bool inited = false;
 
-        private static bool _aiPanelVisible = false;
-
-        public static UIState uistate
-        {
-            set
-            {
-                if (value == UIState.None && inited)
-                {
+        public static UIState uistate {
+            set {
+                if (value == UIState.None && inited) {
                     buttonSwitchTraffic.focusedBgSprite = "ButtonMenu";
                     buttonPrioritySigns.focusedBgSprite = "ButtonMenu";
                     buttonManualControl.focusedBgSprite = "ButtonMenu";
                     buttonTimedMain.focusedBgSprite = "ButtonMenu";
                     buttonCrosswalk.focusedBgSprite = "ButtonMenu";
                     buttonClearTraffic.focusedBgSprite = "ButtonMenu";
-					buttonLaneChange.focusedBgSprite = "ButtonMenu";
+                    buttonLaneChange.focusedBgSprite = "ButtonMenu";
                 }
 
                 _uistate = value;
@@ -55,7 +50,6 @@ namespace TrafficManager_ImprovedAI
         private static UIButton buttonLaneChange;
         private static UIButton buttonCrosswalk;
         private static UIButton buttonClearTraffic;
-        private static UIButton buttonImprovedAI;
 
         public static TrafficLightTool trafficLightTool;
 
@@ -68,7 +62,7 @@ namespace TrafficManager_ImprovedAI
             this.backgroundSprite = "GenericPanel";
             this.color = new Color32(75, 75, 135, 255);
             this.width = 250;
-            this.height = 350;
+            this.height = 310;
             this.relativePosition = new Vector3(10.48f, 80f);
 
             UILabel title = this.AddUIComponent<UILabel>();
@@ -82,17 +76,6 @@ namespace TrafficManager_ImprovedAI
             buttonLaneChange = _createButton("Change lanes", new Vector3(35f, 190f), clickChangeLanes);
             buttonCrosswalk = _createButton("Add/Remove Crosswalk", new Vector3(35f, 230f), clickCrosswalk);
             buttonClearTraffic = _createButton("Clear Traffic", new Vector3(35f, 270f), clickClearTraffic);
-            buttonImprovedAI = _createButton("Improved AI", new Vector3(35f, 310f), clickImprovedAI);
-        }
-
-        public void HideAIPanel()
-        {
-            var uiView = UIView.GetAView();
-            var aiPanel = uiView.FindUIComponent("AIPanel");
-            if (aiPanel != null) {
-                UIView.Destroy(aiPanel);
-            }
-            _aiPanelVisible = false;
         }
 
         private UIButton _createButton(string text, Vector3 pos, MouseEventHandler eventClick)
@@ -114,29 +97,14 @@ namespace TrafficManager_ImprovedAI
             return button;
         }
 
-        private void clickImprovedAI(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            var uiView = UIView.GetAView();
-            if (!_aiPanelVisible) {
-                uiView.AddUIComponent(typeof(AIPanel));
-                _aiPanelVisible = true;
-            } else {
-                HideAIPanel();
-            }
-        }
-
         private void clickSwitchTraffic(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_uistate != UIState.SwitchTrafficLight)
-            {
+            if (_uistate != UIState.SwitchTrafficLight) {
                 _uistate = UIState.SwitchTrafficLight;
 
                 buttonSwitchTraffic.focusedBgSprite = "ButtonMenuFocused";
-                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.SwitchTrafficLight);
-            }
-            else
-            {
+            } else {
                 _uistate = UIState.None;
 
                 buttonSwitchTraffic.focusedBgSprite = "ButtonMenu";
@@ -147,16 +115,12 @@ namespace TrafficManager_ImprovedAI
 
         private void clickAddPrioritySigns(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_uistate != UIState.AddStopSign)
-            {
+            if (_uistate != UIState.AddStopSign) {
                 _uistate = UIState.AddStopSign;
 
                 buttonPrioritySigns.focusedBgSprite = "ButtonMenuFocused";
-                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.AddPrioritySigns);
-            }
-            else
-            {
+            } else {
                 _uistate = UIState.None;
 
                 buttonPrioritySigns.focusedBgSprite = "ButtonMenu";
@@ -167,16 +131,12 @@ namespace TrafficManager_ImprovedAI
 
         private void clickManualControl(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_uistate != UIState.ManualSwitch)
-            {
+            if (_uistate != UIState.ManualSwitch) {
                 _uistate = UIState.ManualSwitch;
 
                 buttonManualControl.focusedBgSprite = "ButtonMenuFocused";
-                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.ManualSwitch);
-            }
-            else
-            {
+            } else {
                 _uistate = UIState.None;
 
                 buttonManualControl.focusedBgSprite = "ButtonMenu";
@@ -187,16 +147,12 @@ namespace TrafficManager_ImprovedAI
 
         private void clickTimedAdd(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_uistate != UIState.TimedControlNodes)
-            {
+            if (_uistate != UIState.TimedControlNodes) {
                 _uistate = UIState.TimedControlNodes;
 
                 buttonTimedMain.focusedBgSprite = "ButtonMenuFocused";
-                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.TimedLightsSelectNode);
-            }
-            else
-            {
+            } else {
                 _uistate = UIState.None;
 
                 buttonTimedMain.focusedBgSprite = "ButtonMenu";
@@ -209,88 +165,42 @@ namespace TrafficManager_ImprovedAI
         {
             List<ushort> vehicleList = new List<ushort>();
 
-            foreach (var vehicleID in TrafficPriority.vehicleList.Keys)
-            {
+            foreach (var vehicleID in TrafficPriority.vehicleList.Keys) {
                 vehicleList.Add(vehicleID);
             }
 
-            lock (Singleton<VehicleManager>.instance)
-            {
-                for (var i = 0; i < vehicleList.Count; i++)
-                {
+            lock (Singleton<VehicleManager>.instance) {
+                for (var i = 0; i < vehicleList.Count; i++) {
                     var vehicleData = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleList[i]];
 
-                    if (vehicleData.Info.m_vehicleType == VehicleInfo.VehicleType.Car)
-                    {
+                    if (vehicleData.Info.m_vehicleType == VehicleInfo.VehicleType.Car) {
                         Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleList[i]);
                     }
                 }
             }
         }
-        /*
-        private void clickToggleDespawn(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            LoadingExtension.Instance.despawnEnabled = !LoadingExtension.Instance.despawnEnabled;
-
-            if (!LoadingExtension.PathfinderIncompatibility)
-            {
-                buttonToggleDespawn.text = LoadingExtension.Instance.despawnEnabled
-                    ? "Disable despawning"
-                    : "Enable despawning";
-            }
-        }
-        */
 
         private void clickChangeLanes(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_uistate != UIState.LaneChange)
-            {
+            if (_uistate != UIState.LaneChange) {
                 _uistate = UIState.LaneChange;
                 buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
-                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.LaneChange);
-            }
-            else
-            {
+            } else {
                 _uistate = UIState.None;
                 buttonLaneChange.focusedBgSprite = "ButtonMenu";
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             }
         }
-        /*
-        private void clickLaneRestrictions(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (_uistate != UIState.LaneRestrictions)
-            {
-                _uistate = UIState.LaneRestrictions;
-
-                buttonLaneRestrictions.focusedBgSprite = "ButtonMenuFocused";
-
-                TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.LaneRestrictions);
-            }
-            else
-            {
-                _uistate = UIState.None;
-
-                buttonLaneRestrictions.focusedBgSprite = "ButtonMenu";
-
-                TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
-            }
-        }
-        */
 
         private void clickCrosswalk(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_uistate != UIState.Crosswalk)
-            {
+            if (_uistate != UIState.Crosswalk) {
                 _uistate = UIState.Crosswalk;
 
                 buttonCrosswalk.focusedBgSprite = "ButtonMenuFocused";
-                HideAIPanel();
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.Crosswalk);
-            }
-            else
-            {
+            } else {
                 _uistate = UIState.None;
 
                 buttonCrosswalk.focusedBgSprite = "ButtonMenu";
@@ -298,147 +208,5 @@ namespace TrafficManager_ImprovedAI
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             }
         }
-/*
-        public override void Update()
-        {
-            switch (_uistate)
-            {
-                case UIState.None: _basePanel(); break;
-                case UIState.SwitchTrafficLight: _switchTrafficPanel(); break;
-                case UIState.AddStopSign: _addStopSignPanel(); break;
-                case UIState.ManualSwitch: _manualSwitchPanel(); break;
-                case UIState.TimedControlNodes: _timedControlNodesPanel(); break;
-                case UIState.TimedControlLights: _timedControlLightsPanel(); break;
-                case UIState.LaneChange: _laneChangePanel(); break;
-                case UIState.Crosswalk: _crosswalkPanel(); break;
-            }
-        }
-
-        private void _basePanel()
-        {
-
-        }
-
-        private void _switchTrafficPanel()
-        {
-
-        }
-
-        private void _addStopSignPanel()
-        {
-
-        }
-
-        private void _manualSwitchPanel()
-        {
-
-        }
-
-        private void _timedControlNodesPanel()
-        {
-        }
-
-        private void _timedControlLightsPanel()
-        {
-        }
-
-        private void _laneChangePanel()
-        {
-            if (TrafficLightTool.SelectedSegment != 0)
-            {
-                NetManager instance = Singleton<NetManager>.instance;
-
-                var segment = instance.m_segments.m_buffer[TrafficLightTool.SelectedSegment];
-
-                var info = segment.Info;
-
-                uint num2 = segment.m_lanes;
-                int num3 = 0;
-
-                int offsetIdx = 0;
-
-                NetInfo.Direction dir = NetInfo.Direction.Forward;
-                if (segment.m_startNode == TrafficLightTool.SelectedNode)
-                    dir = NetInfo.Direction.Backward;
-                var dir3 = ((segment.m_flags & NetSegment.Flags.Invert) == NetSegment.Flags.None) ? dir : NetInfo.InvertDirection(dir);
-
-                while (num3 < info.m_lanes.Length && num2 != 0u)
-                {
-                    if (info.m_lanes[num3].m_laneType != NetInfo.LaneType.Pedestrian && info.m_lanes[num3].m_direction == dir3)
-                    {
-                        //segmentLights[num3].Show();
-                        //segmentLights[num3].relativePosition = new Vector3(35f, (float)(xPos + (offsetIdx * 40f)));
-                        //segmentLights[num3].text = ((NetLane.Flags)instance.m_lanes.m_buffer[num2].m_flags & ~NetLane.Flags.Created).ToString();
-
-                        //if (segmentLights[num3].containsMouse)
-                        //{
-                        //    if (Input.GetMouseButton(0) && !segmentMouseDown)
-                        //    {
-                        //        switchLane(num2);
-                        //        segmentMouseDown = true;
-
-                        //        if (
-                        //            !TrafficPriority.isPrioritySegment(TrafficLightTool.SelectedNode,
-                        //                TrafficLightTool.SelectedSegment))
-                        //        {
-                        //            TrafficPriority.addPrioritySegment(TrafficLightTool.SelectedNode, TrafficLightTool.SelectedSegment, PrioritySegment.PriorityType.None);
-                        //        }
-                        //    }
-                        //}
-
-                        offsetIdx++;
-                    }
-
-                    num2 = instance.m_lanes.m_buffer[(int)((UIntPtr)num2)].m_nextLane;
-                    num3++;
-                }
-            }
-        }
-
-        public void switchLane(uint laneID)
-        {
-            var flags = (NetLane.Flags)Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags;
-
-            if ((flags & NetLane.Flags.LeftForwardRight) == NetLane.Flags.LeftForwardRight)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.LeftForwardRight) | NetLane.Flags.Forward);
-            }
-            else if ((flags & NetLane.Flags.ForwardRight) == NetLane.Flags.ForwardRight)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.ForwardRight) | NetLane.Flags.LeftForwardRight);
-            }
-            else if ((flags & NetLane.Flags.LeftRight) == NetLane.Flags.LeftRight)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.LeftRight) | NetLane.Flags.ForwardRight);
-            }
-            else if ((flags & NetLane.Flags.LeftForward) == NetLane.Flags.LeftForward)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.LeftForward) | NetLane.Flags.LeftRight);
-            }
-            else if ((flags & NetLane.Flags.Right) == NetLane.Flags.Right)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.Right) | NetLane.Flags.LeftForward);
-            }
-            else if ((flags & NetLane.Flags.Left) == NetLane.Flags.Left)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.Left) | NetLane.Flags.Right);
-            }
-            else if ((flags & NetLane.Flags.Forward) == NetLane.Flags.Forward)
-            {
-                Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags =
-                    (ushort) ((flags & ~NetLane.Flags.Forward) | NetLane.Flags.Left);
-            }
-        }
-
-        private void _crosswalkPanel()
-        {
-        }
-        */
     }
 }

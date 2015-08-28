@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;  
+using System.Linq;
 using ColossalFramework;
 using ColossalFramework.UI;
 using ICities;
@@ -12,6 +12,7 @@ namespace TrafficManager_ImprovedAI
     public class UIBase : UICustomControl
     {
         private bool _uiShown = false;
+        private bool _aiPanelVisible = false;
 
         public UIBase()
         {
@@ -24,6 +25,7 @@ namespace TrafficManager_ImprovedAI
 
             // Set the text to show on the button.
             button.text = "Traffic Manager";
+            button.tooltip = "Right-click to tweak Improved AI";
 
             // Set the button dimensions.
             button.width = 150;
@@ -48,18 +50,42 @@ namespace TrafficManager_ImprovedAI
             button.relativePosition = new Vector3(180f, 20f);
 
             // Respond to button click.
-            button.eventClick += ButtonClick;
+            button.eventMouseHover += MouseHover;
         }
 
-        private void ButtonClick(UIComponent component, UIMouseEventParameter eventParam)
+        void MouseHover(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (!_uiShown)
-            {
-                Show();
+            if (Input.GetMouseButton(1)) {
+                RightClick();
+            } else if (Input.GetMouseButton(0)) {
+                LeftClick();
             }
-            else
-            {
-                Close();
+        }
+
+        private void RightClick()
+        {
+            if (!_aiPanelVisible) {
+                if (_uiShown) {
+                    Close();
+                }
+                var uiView = UIView.GetAView();
+                var aiPanel = uiView.AddUIComponent(typeof(AIPanel));
+                _aiPanelVisible = true;
+            } else {
+                HideAIPanel();
+            }
+        }
+
+        private void LeftClick()
+        {
+            if (_aiPanelVisible) {
+                HideAIPanel();
+            } else {
+                if (!_uiShown) {
+                    Show();
+                } else {
+                    Close();
+                }
             }
         }
 
@@ -85,9 +111,7 @@ namespace TrafficManager_ImprovedAI
 
             var trafficManager = uiView.FindUIComponent("UITrafficManager");
 
-            if (trafficManager != null)
-            {
-                ((UITrafficManager)trafficManager).HideAIPanel();
+            if (trafficManager != null) {
                 UIView.Destroy(trafficManager);
             }
 
@@ -97,5 +121,17 @@ namespace TrafficManager_ImprovedAI
 
             _uiShown = false;
         }
+
+        public void HideAIPanel()
+        {
+            var uiView = UIView.GetAView();
+            var aiPanel = uiView.FindUIComponent("AIPanel");
+            if (aiPanel != null) {
+                UIView.Destroy(aiPanel);
+            }
+            _aiPanelVisible = false;
+        }
+
+
     }
 }
