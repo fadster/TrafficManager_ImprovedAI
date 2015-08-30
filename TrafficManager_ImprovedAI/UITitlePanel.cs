@@ -53,7 +53,7 @@ namespace TrafficManager_ImprovedAI
             dragHandle = AddUIComponent<UIDragHandle>();
 
             height = 40;
-            width = 450;
+            width = 480;
             TitleText = "(None)";
             IconSprite = "";
         }

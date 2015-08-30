@@ -11,22 +11,6 @@ using UnityEngine;
 
 namespace TrafficManager_ImprovedAI
 {
-    /*
-    public class Debug
-    {
-        public static void Log(string s) { Console.WriteLine(s); }
-        public static void Log(Exception e) {
-            Console.WriteLine(e.ToString());
-        }
-        public static void LogWarning(string s) { Console.WriteLine(s); }
-        public static void LogError(string s) { Console.WriteLine(s); }
-    }
-
-    public class MonoBehaviour
-    {
-
-    }
-*/
     public class SerializableDataExtension : ISerializableDataExtension
     {
         public static string dataID = "TrafficManager_v0.9";
@@ -68,14 +52,12 @@ namespace TrafficManager_ImprovedAI
                 _timer.Enabled = true;
             }
         }
-        //private
+
         public static void OnLoadDataTimed(System.Object source, ElapsedEventArgs e)
-      //  public static void fuckThisDog()
         {
             byte[] data = SerializableData.LoadData(dataID);
 
             uniqueID = 0u;
-            //uniqueID = 1674161;
             var i = 0;
 
             for (i = 0; i < data.Length - 3; i++) {
@@ -83,7 +65,6 @@ namespace TrafficManager_ImprovedAI
             }
 
             var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
-            // var filepath = "C:\\Users\\fady\\Documents\\GitHub\\TrafficManager_ImprovedAI\\Test\\obj\\Debug\\trafficManagerSave_1674161.xml";
             _timer.Enabled = false;
 
             if (!File.Exists(filepath)) {
@@ -93,7 +74,6 @@ namespace TrafficManager_ImprovedAI
 
             Debug.Log("deserializing " + filepath);
             var configuration = Configuration.Deserialize(filepath);
-            Debug.Log("cf = " + configuration.congestionCostFactor + " ml = " + configuration.minLaneSpace + " ll " + configuration.lookaheadLanes + " cl " + configuration.congestedLaneThreshold);
 
             try {
                 for (i = 0; i < configuration.prioritySegments.Count; i++) {
@@ -235,7 +215,7 @@ namespace TrafficManager_ImprovedAI
                 Debug.Log("crosswalk exception at i2 = " + i2 + " j2 = " + j2 + " - " + ex);
             }
 
-            var lanes = configuration.laneFlags.Split(',');
+            var lanes = configuration.laneFlags.TrimEnd(',').Split(',');
 
             Debug.Log("found " + lanes.Length + " lane assignments");
 
@@ -409,6 +389,7 @@ namespace TrafficManager_ImprovedAI
                     laneCount++;
                 }
             }
+            configuration.laneFlags.TrimEnd(',');
 
             Debug.Log("wrote " + laneCount + " lanes out of " + Singleton<NetManager>.instance.m_lanes.m_buffer.Length);
 
@@ -416,6 +397,7 @@ namespace TrafficManager_ImprovedAI
             configuration.minLaneSpace = CustomPathFind.minLaneSpace;
             configuration.lookaheadLanes = CustomPathFind.lookaheadLanes;
             configuration.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
+            configuration.obeyTMLanes = AIPanel.IsObeyingTMLanes();
 
             Configuration.Serialize(filepath, configuration);
         }
@@ -440,6 +422,7 @@ namespace TrafficManager_ImprovedAI
         public float minLaneSpace;
         public int lookaheadLanes;
         public int congestedLaneThreshold;
+        public bool obeyTMLanes;
 
         public void OnPreSerialize()
         {
@@ -497,7 +480,6 @@ namespace TrafficManager_ImprovedAI
                 using (var reader = new StreamReader(filename)) {
                     var config = (Configuration)serializer.Deserialize(reader);
                     config.OnPostDeserialize();
-                    //Console.WriteLine(config.ToString());
                     return config;
                 }
             } catch (Exception e) {

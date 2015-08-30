@@ -11,8 +11,8 @@ namespace TrafficManager_ImprovedAI
 {
     public class UIBase : UICustomControl
     {
-        private static bool _uiShown = false;
-        private static bool _aiPanelVisible = false;
+        private UITrafficManager tmPanel;
+        private AIPanel aiPanel;
 
         public UIBase()
         {
@@ -76,77 +76,34 @@ namespace TrafficManager_ImprovedAI
             button.playAudioEvents = true;
 
             // Place the button.
-            button.relativePosition = new Vector3(260f, 20f);
+            button.relativePosition = new Vector3(220f, 20f);
 
             // Respond to button click.
             button.eventClick += aiClick;
 
         }
-/*
-        void Click1(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            Debug.Log("event 1 - " + eventParam);
-
-            if (Event.current.button == 0) {
-                Debug.Log("current button is left");
-            } else if (Event.current.button == 1) {
-                Debug.Log("current button is right");
-            }
-            if (Input.GetMouseButtonDown(1)) {
-                Debug.Log("get mouse right");
-            } else if (Input.GetMouseButtonDown(0)) {
-                Debug.Log("get mouse left");
-            }
-        }
-*/
-        /*
-        void Click2(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            Debug.Log("2 " + eventParam);
-
-            if (Event.current.button == 0) {
-                Debug.Log("current button is left");
-                LeftClick();
-            } else if (Event.current.button == 1) {
-                Debug.Log("current button is right");
-                RightClick();
-            }
-            
-            if (Input.GetMouseButtonDown(1)) {
-                Debug.Log("right");
-                RightClick();
-            } else if (Input.GetMouseButtonDown(0)) {
-                Debug.Log("left");
-                LeftClick();
-            } else if (Event.current.button == 0) {
-                Debug.Log("left 2");
-            } else if (Event.current.button == 1) {
-                Debug.Log("right 2");
-            }
-            
-        }
-        */
 
         private void aiClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (!_aiPanelVisible) {
-                if (_uiShown) {
+            if (aiPanel == null || !aiPanel.isVisible) {
+                if (tmPanel != null && tmPanel.isVisible) {
                     Close();
                 }
-                var uiView = UIView.GetAView();
-                var aiPanel = uiView.AddUIComponent(typeof(AIPanel));
-                _aiPanelVisible = true;
+                if (aiPanel == null) {
+                    aiPanel = (AIPanel) UIView.GetAView().AddUIComponent(typeof(AIPanel));
+                }
+                aiPanel.isVisible = true;
             } else {
-                HideAIPanel();
+                aiPanel.isVisible = false;
             }
         }
 
         private void tmClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_aiPanelVisible) {
-                HideAIPanel();
+            if (aiPanel != null && aiPanel.isVisible) {
+                aiPanel.isVisible = false;
             }
-            if (!_uiShown) {
+            if (tmPanel == null || !tmPanel.isVisible) {
                 Show();
             } else {
                 Close();
@@ -155,47 +112,26 @@ namespace TrafficManager_ImprovedAI
 
         public bool isVisible()
         {
-            return _uiShown;
+            return (tmPanel != null && tmPanel.isVisible);
         }
 
         public void Show()
         {
-            var uiView = UIView.GetAView();
-
-            uiView.AddUIComponent(typeof(UITrafficManager));
-
+            if (tmPanel == null) {
+                tmPanel = (UITrafficManager) UIView.GetAView().AddUIComponent(typeof(UITrafficManager));
+            }
+            tmPanel.isVisible = true;
             LoadingExtension.Instance.SetToolMode(TrafficManagerMode.TrafficLight);
-
-            _uiShown = true;
         }
 
         public void Close()
         {
-            var uiView = UIView.GetAView();
-
-            var trafficManager = uiView.FindUIComponent("UITrafficManager");
-
-            if (trafficManager != null) {
-                UIView.Destroy(trafficManager);
+            if (tmPanel != null) {
+                tmPanel.isVisible = false;
             }
-
             UITrafficManager.uistate = UITrafficManager.UIState.None;
             TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             LoadingExtension.Instance.SetToolMode(TrafficManagerMode.None);
-
-            _uiShown = false;
         }
-
-        public static void HideAIPanel()
-        {
-            var uiView = UIView.GetAView();
-            var aiPanel = uiView.FindUIComponent("AIPanel");
-            if (aiPanel != null) {
-                UIView.Destroy(aiPanel);
-            }
-            _aiPanelVisible = false;
-        }
-
-
     }
 }

@@ -90,40 +90,55 @@ namespace TrafficManager_ImprovedAI
         private NetInfo.LaneType m_laneTypes;
         private VehicleInfo.VehicleType m_vehicleTypes;
 
-        private const float MIN_CONGESTION_COST_FACTOR = 3f;
-        private const float MAX_CONGESTION_COST_FACTOR = 100f;
-        private const float MIN_MIN_LANE_SPACE = 5f;
-        private const float MAX_MIN_LANE_SPACE = 50f;
+        public const float DEF_CONGESTION_COST_FACTOR = 3f;
+        public const float MIN_CONGESTION_COST_FACTOR = 1f;
+        public const float MAX_CONGESTION_COST_FACTOR = 100f;
 
-        private static float m_congestionCostFactor = 3f;
-        private static float m_minLaneSpace = 5f;
+        public const float DEF_MIN_LANE_SPACE = 5f;
+        public const float MIN_MIN_LANE_SPACE = 1f;
+        public const float MAX_MIN_LANE_SPACE = 50f;
 
+        public const int DEF_LOOKAHEAD_LANES = 5;
+        public const int MIN_LOOKAHEAD_LANES = 1;
+        public const int MAX_LOOKAHEAD_LANES = 20;
+
+        public const int DEF_CONGESTED_LANE_THRESHOLD = 2;
+        public const int MIN_CONGESTED_LANE_THRESHOLD = 1;
+        public const int MAX_CONGESTED_LANE_THRESHOLD = 20;
+
+        private static float m_congestionCostFactor = DEF_CONGESTION_COST_FACTOR;
         public static float congestionCostFactor {
             get { return m_congestionCostFactor; }
             set { m_congestionCostFactor = Mathf.Min(Mathf.Max(value, MIN_CONGESTION_COST_FACTOR), MAX_CONGESTION_COST_FACTOR); }
         }
 
+        private static float m_minLaneSpace = DEF_MIN_LANE_SPACE;
         public static float minLaneSpace {
             get { return m_minLaneSpace; }
             set { m_minLaneSpace = Mathf.Min(Mathf.Max(value, MIN_MIN_LANE_SPACE), MAX_MIN_LANE_SPACE); }
         }
 
-        private const int MIN_NUM_LOOKAHEAD_LANES = 1;
-        private const int MAX_NUM_LOOKAHEAD_LANES = 20;
-        private const int MIN_CONGESTED_LANE_THRESHOLD = 1;
-        private const int MAX_CONGESTED_LANE_THRESHOLD = 20;
-
-        private static int m_lookaheadLanes = 5;
-        private static int m_congestedLaneThreshold = 2;
-
+        private static int m_lookaheadLanes = DEF_LOOKAHEAD_LANES;
         public static int lookaheadLanes {
             get { return m_lookaheadLanes; }
-            set { m_lookaheadLanes = Mathf.Min(Mathf.Max(value, Mathf.Max(m_congestedLaneThreshold, MIN_NUM_LOOKAHEAD_LANES)), MAX_NUM_LOOKAHEAD_LANES); }
+            set { m_lookaheadLanes = Mathf.Min(Mathf.Max(value, Mathf.Max(m_congestedLaneThreshold, MIN_LOOKAHEAD_LANES)), MAX_LOOKAHEAD_LANES); }
         }
 
+        private static int m_congestedLaneThreshold = DEF_CONGESTED_LANE_THRESHOLD;
         public static int congestedLaneThreshold {
             get { return m_congestedLaneThreshold; }
             set { m_congestedLaneThreshold = Mathf.Min(Mathf.Max(value, MIN_CONGESTED_LANE_THRESHOLD), Mathf.Min(MAX_CONGESTED_LANE_THRESHOLD, m_lookaheadLanes)); }
+        }
+
+        private static bool m_obeyTMLanes = true;
+        public static bool obeyTMLanes { get { return m_obeyTMLanes; } set { m_obeyTMLanes = value; } }
+
+        public static void ResetAIParameters()
+        {
+            congestionCostFactor = DEF_CONGESTION_COST_FACTOR;
+            minLaneSpace = DEF_MIN_LANE_SPACE;
+            congestedLaneThreshold = DEF_CONGESTED_LANE_THRESHOLD;
+            lookaheadLanes = DEF_LOOKAHEAD_LANES;
         }
 
         private void Awake()
@@ -982,7 +997,7 @@ namespace TrafficManager_ImprovedAI
             while (num12 < num && num2 != 0u)
             {
                 NetInfo.Lane lane2 = info.m_lanes[num12];
-                if ((byte)(lane2.m_finalDirection & direction2) != 0 && CheckLaneConnection(num2, item.m_laneID, targetNode))
+                if ((byte)(lane2.m_finalDirection & direction2) != 0 && (!m_obeyTMLanes || CheckLaneConnection(num2, item.m_laneID, targetNode)))
                 {
                     if (lane2.CheckType(laneType2, vehicleType2) && (segmentID != item.m_position.m_segment || num12 != (int)item.m_position.m_lane) && (byte)(lane2.m_finalDirection & direction2) != 0)
                     {

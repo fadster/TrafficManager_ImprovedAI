@@ -47,7 +47,6 @@ namespace TrafficManager_ImprovedAI
 
 			if (!LoadingExtension.Instance.detourInited)
 			{
-                Debug.Log("1");
                 LoadingExtension.Instance.revertMethods[0] = RedirectionHelper.RedirectCalls(
                     typeof(CarAI).GetMethod("CalculateSegmentPosition",
                         BindingFlags.NonPublic | BindingFlags.Instance,
@@ -69,7 +68,6 @@ namespace TrafficManager_ImprovedAI
                         },
                         null));
 
-                Debug.Log("2");
                 LoadingExtension.Instance.revertMethods[1] = RedirectionHelper.RedirectCalls(
                     typeof(RoadBaseAI).GetMethod("SimulationStep",
                         new Type[] { typeof(ushort), typeof(NetNode).MakeByRefType() }),
@@ -78,7 +76,6 @@ namespace TrafficManager_ImprovedAI
                         typeof(NetNode).MakeByRefType()
                     }));
 
-                Debug.Log("3");
 				LoadingExtension.Instance.revertMethods[2] = RedirectionHelper.RedirectCalls(typeof (HumanAI).GetMethod("CheckTrafficLights",
 					BindingFlags.NonPublic | BindingFlags.Instance,
 					null,

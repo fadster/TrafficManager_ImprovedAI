@@ -13,13 +13,15 @@ namespace TrafficManager_ImprovedAI
         private static UISliderInput minLaneSpace;
         private static UISliderInput lookaheadLanes;
         private static UISliderInput congestedLaneThreshold;
+        private static UILabelledBox obeyTMLanes;
+        private static UIButton resetButton;
 
         public override void Start()
         {
             this.backgroundSprite = "MenuPanel2";
-            this.width = 435;
-            this.height = 285;
-            this.transformPosition = new Vector3(-1.3f, 0.9f);
+            this.width = 480;
+            this.height = 315;
+            this.relativePosition = new Vector3(220f, 60f);
 
             UITitlePanel titlePanel = this.AddUIComponent<UITitlePanel>();
             titlePanel.Parent = this;
@@ -27,82 +29,106 @@ namespace TrafficManager_ImprovedAI
             titlePanel.IconSprite = "ToolbarIconRoads";
             titlePanel.TitleText = "Improved AI";
 
-            congestionCostFactor = this.AddUIComponent<UISliderInput>();
+            float yVal = 60;
             minLaneSpace = this.AddUIComponent<UISliderInput>();
-            lookaheadLanes = this.AddUIComponent<UISliderInput>();
-            congestedLaneThreshold = this.AddUIComponent<UISliderInput>();
-
-            congestionCostFactor.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
-                while (!Monitor.TryEnter(congestionCostFactor, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
-                }
-                CustomPathFind.congestionCostFactor = value;
-                Monitor.Exit(congestionCostFactor);
-            };
-
             minLaneSpace.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
                 while (!Monitor.TryEnter(minLaneSpace, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
                 }
                 CustomPathFind.minLaneSpace = value;
                 Monitor.Exit(minLaneSpace);
             };
-
-            lookaheadLanes.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
-                while (!Monitor.TryEnter(lookaheadLanes, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
-                }
-                CustomPathFind.lookaheadLanes = (int) value;
-                Monitor.Exit(lookaheadLanes);
-            };
-
-            congestedLaneThreshold.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
-                while (!Monitor.TryEnter(congestedLaneThreshold, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
-                }
-                CustomPathFind.congestedLaneThreshold = (int) value;
-                Monitor.Exit(congestedLaneThreshold);
-            };
-
-            float yVal = 55;
-
-            congestionCostFactor.Parent = this;
-            congestionCostFactor.relativePosition = new Vector3(0, yVal);
-            congestionCostFactor.MinValue = 3f;
-            congestionCostFactor.MaxValue = 100f;
-            congestionCostFactor.StepSize = 0.1f;
-            congestionCostFactor.Slider.scrollWheelAmount = 0.1f;
-            congestionCostFactor.LabelText = "congestion cost factor";
-            congestionCostFactor.SliderValue = CustomPathFind.congestionCostFactor;
-
-            yVal += 55;
-
             minLaneSpace.Parent = this;
-            minLaneSpace.relativePosition = new Vector3(0, yVal);
-            minLaneSpace.MinValue = 5f;
-            minLaneSpace.MaxValue = 50f;
+            minLaneSpace.relativePosition = new Vector3(5, yVal);
+            minLaneSpace.MinValue = CustomPathFind.MIN_MIN_LANE_SPACE;
+            minLaneSpace.MaxValue = CustomPathFind.MAX_MIN_LANE_SPACE;
             minLaneSpace.StepSize = 0.1f;
             minLaneSpace.Slider.scrollWheelAmount = 0.1f;
             minLaneSpace.LabelText = "minimum lane space";
             minLaneSpace.SliderValue = CustomPathFind.minLaneSpace;
 
             yVal += 55;
+            congestionCostFactor = this.AddUIComponent<UISliderInput>();
+            congestionCostFactor.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
+                while (!Monitor.TryEnter(congestionCostFactor, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
+                }
+                CustomPathFind.congestionCostFactor = value;
+                Monitor.Exit(congestionCostFactor);
+            };
+            congestionCostFactor.Parent = this;
+            congestionCostFactor.relativePosition = new Vector3(5, yVal);
+            congestionCostFactor.MinValue = CustomPathFind.MIN_CONGESTION_COST_FACTOR;
+            congestionCostFactor.MaxValue = CustomPathFind.MAX_CONGESTION_COST_FACTOR;
+            congestionCostFactor.StepSize = 0.1f;
+            congestionCostFactor.Slider.scrollWheelAmount = 0.1f;
+            congestionCostFactor.LabelText = "congestion cost factor";
+            congestionCostFactor.SliderValue = CustomPathFind.congestionCostFactor;
 
+            yVal += 55;
+            lookaheadLanes = this.AddUIComponent<UISliderInput>();
+            lookaheadLanes.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
+                while (!Monitor.TryEnter(lookaheadLanes, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
+                }
+                CustomPathFind.lookaheadLanes = (int) value;
+                Monitor.Exit(lookaheadLanes);
+            };
             lookaheadLanes.Parent = this;
-            lookaheadLanes.relativePosition = new Vector3(0, yVal);
-            lookaheadLanes.MinValue = 1;
-            lookaheadLanes.MaxValue = 20;
+            lookaheadLanes.relativePosition = new Vector3(5, yVal);
+            lookaheadLanes.MinValue = CustomPathFind.MIN_LOOKAHEAD_LANES;
+            lookaheadLanes.MaxValue = CustomPathFind.MAX_LOOKAHEAD_LANES;
             lookaheadLanes.StepSize = 1;
             lookaheadLanes.Slider.scrollWheelAmount = 1;
             lookaheadLanes.LabelText = "lookahead lanes";
             lookaheadLanes.SliderValue = CustomPathFind.lookaheadLanes;
 
             yVal += 55;
-
+            congestedLaneThreshold = this.AddUIComponent<UISliderInput>();
+            congestedLaneThreshold.Slider.eventValueChanged += delegate(UIComponent sender, float value) {
+                while (!Monitor.TryEnter(congestedLaneThreshold, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
+                }
+                CustomPathFind.congestedLaneThreshold = (int) value;
+                Monitor.Exit(congestedLaneThreshold);
+            };
             congestedLaneThreshold.Parent = this;
-            congestedLaneThreshold.relativePosition = new Vector3(0, yVal);
-            congestedLaneThreshold.MinValue = 1;
-            congestedLaneThreshold.MaxValue = 20;
+            congestedLaneThreshold.relativePosition = new Vector3(5, yVal);
+            congestedLaneThreshold.MinValue = CustomPathFind.MIN_CONGESTED_LANE_THRESHOLD;
+            congestedLaneThreshold.MaxValue = CustomPathFind.MAX_CONGESTED_LANE_THRESHOLD;
             congestedLaneThreshold.StepSize = 1;
             congestedLaneThreshold.Slider.scrollWheelAmount = 1;
             congestedLaneThreshold.LabelText = "congested lane threshold";
             congestedLaneThreshold.SliderValue = CustomPathFind.congestedLaneThreshold;
+
+            yVal += 55;
+            obeyTMLanes = this.AddUIComponent<UILabelledBox>();
+            obeyTMLanes.Parent = this;
+            obeyTMLanes.relativePosition = new Vector3(0, yVal);
+            obeyTMLanes.LabelText = "obey traffic manager lanes";
+            obeyTMLanes.CheckBox.isChecked = true;
+
+            resetButton = this.AddUIComponent<UIButton>();
+            resetButton.text = "reset";
+            resetButton.width = 50;
+            resetButton.height = 25;
+            resetButton.normalBgSprite = "ButtonMenu";
+//            defaultButton.disabledBgSprite = "ButtonMenuDisabled";
+            resetButton.hoveredBgSprite = "ButtonMenuHovered";
+            resetButton.focusedBgSprite = "ButtonMenu";
+            resetButton.pressedBgSprite = "ButtonMenu";
+            resetButton.playAudioEvents = true;
+            resetButton.relativePosition = new Vector3(420f, yVal);
+            resetButton.eventClick += delegate(UIComponent component, UIMouseEventParameter eventParam) {
+                CustomPathFind.ResetAIParameters();
+                obeyTMLanes.CheckBox.isChecked = true;
+            };
+//            defaultButton.textColor = new Color32(255, 255, 255, 255);
+//            defaultButton.disabledTextColor = new Color32(7, 7, 7, 255);
+//            defaultButton.hoveredTextColor = new Color32(7, 132, 255, 255);
+//            defaultButton.focusedTextColor = new Color32(255, 255, 255, 255);
+//            defaultButton.pressedTextColor = new Color32(30, 30, 44, 255);
+        }
+
+        protected override void OnGotFocus(UIFocusEventParameter p)
+        {
+            base.OnGotFocus(p);
         }
 
         public override void Update()
@@ -114,7 +140,18 @@ namespace TrafficManager_ImprovedAI
         public new void Hide()
         {
             base.Hide();
-            UIBase.HideAIPanel();
+            isVisible = false;
+        }
+
+        public void SetObeyTMLanes(Boolean obey)
+        {
+            obeyTMLanes.CheckBox.isChecked = obey;
+            CustomPathFind.obeyTMLanes = obey;
+        }
+
+        public static bool IsObeyingTMLanes()
+        {
+            return obeyTMLanes.CheckBox.isChecked;
         }
 
         private void ReconcileValues()
@@ -131,17 +168,17 @@ namespace TrafficManager_ImprovedAI
                 minLaneSpace.SliderValue = CustomPathFind.minLaneSpace;
                 Monitor.Exit(minLaneSpace);
             }
-            if (!Mathf.Approximately(lookaheadLanes.SliderValue, CustomPathFind.lookaheadLanes)) {
-                while (!Monitor.TryEnter(lookaheadLanes, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
-                }
-                lookaheadLanes.SliderValue = CustomPathFind.lookaheadLanes;
-                Monitor.Exit(lookaheadLanes);
-            }
             if (!Mathf.Approximately(congestedLaneThreshold.SliderValue, CustomPathFind.congestedLaneThreshold)) {
                 while (!Monitor.TryEnter(congestedLaneThreshold, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
                 }
                 congestedLaneThreshold.SliderValue = CustomPathFind.congestedLaneThreshold;
                 Monitor.Exit(congestedLaneThreshold);
+            }
+            if (!Mathf.Approximately(lookaheadLanes.SliderValue, CustomPathFind.lookaheadLanes)) {
+                while (!Monitor.TryEnter(lookaheadLanes, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
+                }
+                lookaheadLanes.SliderValue = CustomPathFind.lookaheadLanes;
+                Monitor.Exit(lookaheadLanes);
             }
         }
     }
