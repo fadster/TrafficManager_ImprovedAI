@@ -118,12 +118,12 @@ namespace TrafficManager_ImprovedAI
 
         public static int lookaheadLanes {
             get { return m_lookaheadLanes; }
-            set { m_lookaheadLanes = Mathf.Min(Mathf.Max(value, MIN_NUM_LOOKAHEAD_LANES), MAX_NUM_LOOKAHEAD_LANES); }
+            set { m_lookaheadLanes = Mathf.Min(Mathf.Max(value, Mathf.Max(m_congestedLaneThreshold, MIN_NUM_LOOKAHEAD_LANES)), MAX_NUM_LOOKAHEAD_LANES); }
         }
 
         public static int congestedLaneThreshold {
             get { return m_congestedLaneThreshold; }
-            set { m_congestedLaneThreshold = Mathf.Min(Mathf.Min(Mathf.Max(value, MIN_CONGESTED_LANE_THRESHOLD), MAX_CONGESTED_LANE_THRESHOLD), m_lookaheadLanes); }
+            set { m_congestedLaneThreshold = Mathf.Min(Mathf.Max(value, MIN_CONGESTED_LANE_THRESHOLD), Mathf.Min(MAX_CONGESTED_LANE_THRESHOLD, m_lookaheadLanes)); }
         }
 
         private void Awake()

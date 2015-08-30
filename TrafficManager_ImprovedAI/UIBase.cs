@@ -11,8 +11,8 @@ namespace TrafficManager_ImprovedAI
 {
     public class UIBase : UICustomControl
     {
-        private bool _uiShown = false;
-        private bool _aiPanelVisible = false;
+        private static bool _uiShown = false;
+        private static bool _aiPanelVisible = false;
 
         public UIBase()
         {
@@ -24,11 +24,10 @@ namespace TrafficManager_ImprovedAI
             var button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
 
             // Set the text to show on the button.
-            button.text = "Traffic Manager";
-            button.tooltip = "Right-click to tweak Improved AI";
+            button.text = "TM";
 
             // Set the button dimensions.
-            button.width = 150;
+            button.width = 50;
             button.height = 30;
 
             // Style the button to look like a menu button.
@@ -47,22 +46,88 @@ namespace TrafficManager_ImprovedAI
             button.playAudioEvents = true;
 
             // Place the button.
-            button.relativePosition = new Vector3(180f, 20f);
+            button.relativePosition = new Vector3(160f, 20f);
 
             // Respond to button click.
-            button.eventMouseHover += MouseHover;
-        }
+            button.eventClick += tmClick;
 
-        void MouseHover(UIComponent component, UIMouseEventParameter eventParam)
+            button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
+
+            // Set the text to show on the button.
+            button.text = "AI";
+
+            // Set the button dimensions.
+            button.width = 50;
+            button.height = 30;
+
+            // Style the button to look like a menu button.
+            button.normalBgSprite = "ButtonMenu";
+            button.disabledBgSprite = "ButtonMenuDisabled";
+            button.hoveredBgSprite = "ButtonMenuHovered";
+            button.focusedBgSprite = "ButtonMenuFocused";
+            button.pressedBgSprite = "ButtonMenuPressed";
+            button.textColor = new Color32(255, 255, 255, 255);
+            button.disabledTextColor = new Color32(7, 7, 7, 255);
+            button.hoveredTextColor = new Color32(7, 132, 255, 255);
+            button.focusedTextColor = new Color32(255, 255, 255, 255);
+            button.pressedTextColor = new Color32(30, 30, 44, 255);
+
+            // Enable button sounds.
+            button.playAudioEvents = true;
+
+            // Place the button.
+            button.relativePosition = new Vector3(260f, 20f);
+
+            // Respond to button click.
+            button.eventClick += aiClick;
+
+        }
+/*
+        void Click1(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (Input.GetMouseButton(1)) {
-                RightClick();
-            } else if (Input.GetMouseButton(0)) {
-                LeftClick();
+            Debug.Log("event 1 - " + eventParam);
+
+            if (Event.current.button == 0) {
+                Debug.Log("current button is left");
+            } else if (Event.current.button == 1) {
+                Debug.Log("current button is right");
+            }
+            if (Input.GetMouseButtonDown(1)) {
+                Debug.Log("get mouse right");
+            } else if (Input.GetMouseButtonDown(0)) {
+                Debug.Log("get mouse left");
             }
         }
+*/
+        /*
+        void Click2(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            Debug.Log("2 " + eventParam);
 
-        private void RightClick()
+            if (Event.current.button == 0) {
+                Debug.Log("current button is left");
+                LeftClick();
+            } else if (Event.current.button == 1) {
+                Debug.Log("current button is right");
+                RightClick();
+            }
+            
+            if (Input.GetMouseButtonDown(1)) {
+                Debug.Log("right");
+                RightClick();
+            } else if (Input.GetMouseButtonDown(0)) {
+                Debug.Log("left");
+                LeftClick();
+            } else if (Event.current.button == 0) {
+                Debug.Log("left 2");
+            } else if (Event.current.button == 1) {
+                Debug.Log("right 2");
+            }
+            
+        }
+        */
+
+        private void aiClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (!_aiPanelVisible) {
                 if (_uiShown) {
@@ -76,16 +141,15 @@ namespace TrafficManager_ImprovedAI
             }
         }
 
-        private void LeftClick()
+        private void tmClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (_aiPanelVisible) {
                 HideAIPanel();
+            }
+            if (!_uiShown) {
+                Show();
             } else {
-                if (!_uiShown) {
-                    Show();
-                } else {
-                    Close();
-                }
+                Close();
             }
         }
 
@@ -122,7 +186,7 @@ namespace TrafficManager_ImprovedAI
             _uiShown = false;
         }
 
-        public void HideAIPanel()
+        public static void HideAIPanel()
         {
             var uiView = UIView.GetAView();
             var aiPanel = uiView.FindUIComponent("AIPanel");
