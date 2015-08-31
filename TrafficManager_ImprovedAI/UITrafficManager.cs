@@ -163,20 +163,24 @@ namespace TrafficManager_ImprovedAI
 
         private void clickClearTraffic(UIComponent component, UIMouseEventParameter eventParam)
         {
-            List<ushort> vehicleList = new List<ushort>();
+            try {
+                List<ushort> vehicleList = new List<ushort>();
 
-            foreach (var vehicleID in TrafficPriority.vehicleList.Keys) {
-                vehicleList.Add(vehicleID);
-            }
+                foreach (var vehicleID in TrafficPriority.vehicleList.Keys) {
+                    vehicleList.Add(vehicleID);
+                }
 
-            lock (Singleton<VehicleManager>.instance) {
-                for (var i = 0; i < vehicleList.Count; i++) {
-                    var vehicleData = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleList[i]];
+                lock (Singleton<VehicleManager>.instance) {
+                    for (var i = 0; i < vehicleList.Count; i++) {
+                        var vehicleData = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicleList[i]];
 
-                    if (vehicleData.Info.m_vehicleType == VehicleInfo.VehicleType.Car) {
-                        Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleList[i]);
+                        if (vehicleData.Info.m_vehicleType == VehicleInfo.VehicleType.Car) {
+                            Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleList[i]);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                Debug.LogWarning("Exception while clearing traffic: " + e);
             }
         }
 

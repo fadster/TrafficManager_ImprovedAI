@@ -75,12 +75,12 @@ namespace TrafficManager_ImprovedAI
             var configuration = Configuration.Deserialize(filepath);
 
             try {
-                for (i = 0; i < configuration.data.prioritySegments.Count; i++) {
-                    if (!TrafficPriority.isPrioritySegment((ushort)configuration.data.prioritySegments[i][0],
-                        configuration.data.prioritySegments[i][1])) {
-                        TrafficPriority.addPrioritySegment((ushort)configuration.data.prioritySegments[i][0],
-                            configuration.data.prioritySegments[i][1],
-                            (PrioritySegment.PriorityType)configuration.data.prioritySegments[i][2]);
+                for (i = 0; i < configuration.prioritySegments.Count; i++) {
+                    if (!TrafficPriority.isPrioritySegment((ushort)configuration.prioritySegments[i][0],
+                        configuration.prioritySegments[i][1])) {
+                        TrafficPriority.addPrioritySegment((ushort)configuration.prioritySegments[i][0],
+                            configuration.prioritySegments[i][1],
+                            (PrioritySegment.PriorityType)configuration.prioritySegments[i][2]);
                     }
                 }
             } catch (Exception ex) {
@@ -89,14 +89,14 @@ namespace TrafficManager_ImprovedAI
 
 
             try {
-                for (i = 0; i < configuration.data.nodeDictionary.Count; i++) {
-                    if (CustomRoadAI.GetNodeSimulation((ushort)configuration.data.nodeDictionary[i][0]) == null) {
-                        CustomRoadAI.AddNodeToSimulation((ushort)configuration.data.nodeDictionary[i][0]);
-                        var nodeDict = CustomRoadAI.GetNodeSimulation((ushort)configuration.data.nodeDictionary[i][0]);
+                for (i = 0; i < configuration.nodeDictionary.Count; i++) {
+                    if (CustomRoadAI.GetNodeSimulation((ushort)configuration.nodeDictionary[i][0]) == null) {
+                        CustomRoadAI.AddNodeToSimulation((ushort)configuration.nodeDictionary[i][0]);
+                        var nodeDict = CustomRoadAI.GetNodeSimulation((ushort)configuration.nodeDictionary[i][0]);
 
-                        nodeDict._manualTrafficLights = Convert.ToBoolean(configuration.data.nodeDictionary[i][1]);
-                        nodeDict._timedTrafficLights = Convert.ToBoolean(configuration.data.nodeDictionary[i][2]);
-                        nodeDict.TimedTrafficLightsActive = Convert.ToBoolean(configuration.data.nodeDictionary[i][3]);
+                        nodeDict._manualTrafficLights = Convert.ToBoolean(configuration.nodeDictionary[i][1]);
+                        nodeDict._timedTrafficLights = Convert.ToBoolean(configuration.nodeDictionary[i][2]);
+                        nodeDict.TimedTrafficLightsActive = Convert.ToBoolean(configuration.nodeDictionary[i][3]);
                     }
                 }
             } catch (Exception ex) {
@@ -104,8 +104,8 @@ namespace TrafficManager_ImprovedAI
             }
 
             try {
-                for (i = 0; i < configuration.data.manualSegments.Count; i++) {
-                    var segmentData = configuration.data.manualSegments[i];
+                for (i = 0; i < configuration.manualSegments.Count; i++) {
+                    var segmentData = configuration.manualSegments[i];
 
                     if (!TrafficLightsManual.IsSegmentLight((ushort)segmentData[0], segmentData[1])) {
                         TrafficLightsManual.AddSegmentLight((ushort)segmentData[0], segmentData[1],
@@ -129,32 +129,32 @@ namespace TrafficManager_ImprovedAI
             var timedStepSegmentCount = 0;
 
             try {
-                for (i = 0; i < configuration.data.timedNodes.Count; i++) {
-                    var nodeid = (ushort)configuration.data.timedNodes[i][0];
+                for (i = 0; i < configuration.timedNodes.Count; i++) {
+                    var nodeid = (ushort)configuration.timedNodes[i][0];
 
                     var nodeGroup = new List<ushort>();
-                    for (var j = 0; j < configuration.data.timedNodeGroups[i].Length; j++) {
-                        nodeGroup.Add(configuration.data.timedNodeGroups[i][j]);
+                    for (var j = 0; j < configuration.timedNodeGroups[i].Length; j++) {
+                        nodeGroup.Add(configuration.timedNodeGroups[i][j]);
                     }
 
                     if (!TrafficLightsTimed.IsTimedLight(nodeid)) {
                         TrafficLightsTimed.AddTimedLight(nodeid, nodeGroup);
                         var timedNode = TrafficLightsTimed.GetTimedLight(nodeid);
 
-                        timedNode.currentStep = configuration.data.timedNodes[i][1];
+                        timedNode.currentStep = configuration.timedNodes[i][1];
 
-                        for (var j = 0; j < configuration.data.timedNodes[i][2]; j++) {
-                            var cfgstep = configuration.data.timedNodeSteps[timedStepCount];
+                        for (var j = 0; j < configuration.timedNodes[i][2]; j++) {
+                            var cfgstep = configuration.timedNodeSteps[timedStepCount];
 
                             timedNode.addStep(cfgstep[0]);
 
                             var step = timedNode.steps[j];
 
                             for (var k = 0; k < cfgstep[1]; k++) {
-                                step.lightLeft[k] = (RoadBaseAI.TrafficLightState)configuration.data.timedNodeStepSegments[timedStepSegmentCount][0];
-                                step.lightMain[k] = (RoadBaseAI.TrafficLightState)configuration.data.timedNodeStepSegments[timedStepSegmentCount][1];
-                                step.lightRight[k] = (RoadBaseAI.TrafficLightState)configuration.data.timedNodeStepSegments[timedStepSegmentCount][2];
-                                step.lightPedestrian[k] = (RoadBaseAI.TrafficLightState)configuration.data.timedNodeStepSegments[timedStepSegmentCount][3];
+                                step.lightLeft[k] = (RoadBaseAI.TrafficLightState)configuration.timedNodeStepSegments[timedStepSegmentCount][0];
+                                step.lightMain[k] = (RoadBaseAI.TrafficLightState)configuration.timedNodeStepSegments[timedStepSegmentCount][1];
+                                step.lightRight[k] = (RoadBaseAI.TrafficLightState)configuration.timedNodeStepSegments[timedStepSegmentCount][2];
+                                step.lightPedestrian[k] = (RoadBaseAI.TrafficLightState)configuration.timedNodeStepSegments[timedStepSegmentCount][3];
 
                                 timedStepSegmentCount++;
                             }
@@ -162,7 +162,7 @@ namespace TrafficManager_ImprovedAI
                             timedStepCount++;
                         }
 
-                        if (Convert.ToBoolean(configuration.data.timedNodes[i][3])) {
+                        if (Convert.ToBoolean(configuration.timedNodes[i][3])) {
                             timedNode.start();
                         }
                     }
@@ -178,7 +178,7 @@ namespace TrafficManager_ImprovedAI
                 for (i1 = 0; i1 < 32768; i1++) {
                     if (Singleton<NetManager>.instance.m_nodes.m_buffer[i1].Info.m_class.m_service ==
                     ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags != 0) {
-                        var trafficLight = configuration.data.nodeTrafficLights[j1];
+                        var trafficLight = configuration.nodeTrafficLights[j1];
 
                         if (trafficLight == '1') {
                             Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags |= NetNode.Flags.TrafficLights;
@@ -199,7 +199,7 @@ namespace TrafficManager_ImprovedAI
                 for (i2 = 0; i2 < 32768; i2++) {
                     if (Singleton<NetManager>.instance.m_nodes.m_buffer[i2].Info.m_class.m_service ==
                     ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags != 0) {
-                        var crossWalk = configuration.data.nodeCrosswalk[j2];
+                        var crossWalk = configuration.nodeCrosswalk[j2];
 
                         if (crossWalk == '1') {
                             Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags |= NetNode.Flags.Junction;
@@ -214,10 +214,7 @@ namespace TrafficManager_ImprovedAI
                 Debug.Log("crosswalk exception at i2 = " + i2 + " j2 = " + j2 + " - " + ex);
             }
 
-            var lanes = configuration.data.laneFlags.TrimEnd(',').Split(',');
-
-            Debug.Log("found " + lanes.Length + " lane assignments");
-
+            var lanes = configuration.laneFlags.TrimEnd(',').Split(',');
             try {
                 for (i = 0; i < lanes.Length; i++) {
                     var split = lanes[i].Split(':');
@@ -233,13 +230,13 @@ namespace TrafficManager_ImprovedAI
                 Debug.Log("exception reading lane flags at lane " + i + " lanes[] = [" + lanes[i] + "] - " + ex);
             }
 
-            if (configuration.data.congestionCostFactor > 0) {
+            if (configuration.aiConfig != null && configuration.aiConfig.congestionCostFactor > 0) {
                 Debug.Log("setting AI values");
-                CustomPathFind.congestionCostFactor = configuration.data.congestionCostFactor;
-                CustomPathFind.minLaneSpace = configuration.data.minLaneSpace;
-                CustomPathFind.lookaheadLanes = configuration.data.lookaheadLanes;
-                CustomPathFind.congestedLaneThreshold = configuration.data.congestedLaneThreshold;
-                CustomPathFind.obeyTMLanes = configuration.data.obeyTMLanes;
+                CustomPathFind.congestionCostFactor = configuration.aiConfig.congestionCostFactor;
+                CustomPathFind.minLaneSpace = configuration.aiConfig.minLaneSpace;
+                CustomPathFind.lookaheadLanes = configuration.aiConfig.lookaheadLanes;
+                CustomPathFind.congestedLaneThreshold = configuration.aiConfig.congestedLaneThreshold;
+                CustomPathFind.obeyTMLanes = configuration.aiConfig.obeyTMLanes;
             }
         }
 
@@ -265,14 +262,14 @@ namespace TrafficManager_ImprovedAI
             for (var i = 0; i < 32768; i++) {
                 if (TrafficPriority.prioritySegments.ContainsKey(i)) {
                     if (TrafficPriority.prioritySegments[i].node_1 != 0) {
-                        configuration.data.prioritySegments.Add(new int[3] {
+                        configuration.prioritySegments.Add(new int[3] {
                             TrafficPriority.prioritySegments[i].node_1,
                             i,
                             (int)TrafficPriority.prioritySegments[i].instance_1.type
                         });
                     } 
                     if (TrafficPriority.prioritySegments[i].node_2 != 0) {
-                        configuration.data.prioritySegments.Add(new int[3] {
+                        configuration.prioritySegments.Add(new int[3] {
                             TrafficPriority.prioritySegments[i].node_2,
                             i,
                             (int)TrafficPriority.prioritySegments[i].instance_2.type
@@ -283,7 +280,7 @@ namespace TrafficManager_ImprovedAI
                 if (CustomRoadAI.nodeDictionary.ContainsKey((ushort)i)) {
                     var nodeDict = CustomRoadAI.nodeDictionary[(ushort)i];
 
-                    configuration.data.nodeDictionary.Add(new int[4] {
+                    configuration.nodeDictionary.Add(new int[4] {
                         nodeDict.NodeId,
                         Convert.ToInt32(nodeDict._manualTrafficLights),
                         Convert.ToInt32(nodeDict._timedTrafficLights),
@@ -295,7 +292,7 @@ namespace TrafficManager_ImprovedAI
                     if (TrafficLightsManual.ManualSegments[i].node_1 != 0) {
                         var manualSegment = TrafficLightsManual.ManualSegments[i].instance_1;
 
-                        configuration.data.manualSegments.Add(new int[10] {
+                        configuration.manualSegments.Add(new int[10] {
                             (int)manualSegment.node,
                             manualSegment.segment,
                             (int)manualSegment.currentMode,
@@ -311,7 +308,7 @@ namespace TrafficManager_ImprovedAI
                     if (TrafficLightsManual.ManualSegments[i].node_2 != 0) {
                         var manualSegment = TrafficLightsManual.ManualSegments[i].instance_2;
 
-                        configuration.data.manualSegments.Add(new int[10] {
+                        configuration.manualSegments.Add(new int[10] {
                             (int)manualSegment.node,
                             manualSegment.segment,
                             (int)manualSegment.currentMode,
@@ -329,7 +326,7 @@ namespace TrafficManager_ImprovedAI
                 if (TrafficLightsTimed.timedScripts.ContainsKey((ushort)i)) {
                     var timedNode = TrafficLightsTimed.GetTimedLight((ushort)i);
 
-                    configuration.data.timedNodes.Add(new int[4] {
+                    configuration.timedNodes.Add(new int[4] {
                         timedNode.nodeID,
                         timedNode.currentStep,
                         timedNode.NumSteps(),
@@ -342,16 +339,16 @@ namespace TrafficManager_ImprovedAI
                         nodeGroup[j] = timedNode.nodeGroup[j];
                     }
 
-                    configuration.data.timedNodeGroups.Add(nodeGroup);
+                    configuration.timedNodeGroups.Add(nodeGroup);
 
                     for (var j = 0; j < timedNode.NumSteps(); j++) {
-                        configuration.data.timedNodeSteps.Add(new int[2] {
+                        configuration.timedNodeSteps.Add(new int[2] {
                             timedNode.steps[j].numSteps,
                             timedNode.steps[j].segments.Count
                         });
 
                         for (var k = 0; k < timedNode.steps[j].segments.Count; k++) {
-                            configuration.data.timedNodeStepSegments.Add(new int[4] {
+                            configuration.timedNodeStepSegments.Add(new int[4] {
                                 (int)timedNode.steps[j].lightLeft[k],
                                 (int)timedNode.steps[j].lightMain[k],
                                 (int)timedNode.steps[j].lightRight[k],
@@ -368,9 +365,9 @@ namespace TrafficManager_ImprovedAI
                 if (nodeFlags != 0) {
                     if (Singleton<NetManager>.instance.m_nodes.m_buffer[i].Info.m_class.m_service ==
                         ItemClass.Service.Road) {
-                        configuration.data.nodeTrafficLights +=
+                        configuration.nodeTrafficLights +=
                             Convert.ToInt16((nodeFlags & NetNode.Flags.TrafficLights) != NetNode.Flags.None);
-                        configuration.data.nodeCrosswalk +=
+                        configuration.nodeCrosswalk +=
                             Convert.ToInt16((nodeFlags & NetNode.Flags.Junction) != NetNode.Flags.None);
                     }
                 }
@@ -381,17 +378,17 @@ namespace TrafficManager_ImprovedAI
                 var laneSegment = Singleton<NetManager>.instance.m_lanes.m_buffer[i].m_segment;
 
                 if (TrafficPriority.prioritySegments.ContainsKey(laneSegment)) {
-                    configuration.data.laneFlags += i + ":" + Singleton<NetManager>.instance.m_lanes.m_buffer[i].m_flags + ",";
+                    configuration.laneFlags += i + ":" + Singleton<NetManager>.instance.m_lanes.m_buffer[i].m_flags + ",";
                     laneCount++;
                 }
             }
-            configuration.data.laneFlags.TrimEnd(',');
+            configuration.laneFlags = configuration.laneFlags.TrimEnd(',');
 
-            configuration.data.congestionCostFactor = CustomPathFind.congestionCostFactor;
-            configuration.data.minLaneSpace = CustomPathFind.minLaneSpace;
-            configuration.data.lookaheadLanes = CustomPathFind.lookaheadLanes;
-            configuration.data.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
-            configuration.data.obeyTMLanes = AIPanel.IsObeyingTMLanes();
+            configuration.aiConfig.congestionCostFactor = CustomPathFind.congestionCostFactor;
+            configuration.aiConfig.minLaneSpace = CustomPathFind.minLaneSpace;
+            configuration.aiConfig.lookaheadLanes = CustomPathFind.lookaheadLanes;
+            configuration.aiConfig.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
+            configuration.aiConfig.obeyTMLanes = AIPanel.IsObeyingTMLanes();
 
             Configuration.Serialize(filepath, configuration);
         }
@@ -399,21 +396,8 @@ namespace TrafficManager_ImprovedAI
 
     public class Configuration
     {
-        public class Data
+        public class ImprovedAIConfig
         {
-            public string nodeTrafficLights;
-            public string nodeCrosswalk;
-            public string laneFlags;
-
-            public List<int[]> prioritySegments = new List<int[]>();
-            public List<int[]> nodeDictionary = new List<int[]>();
-            public List<int[]> manualSegments = new List<int[]>();
-
-            public List<int[]> timedNodes = new List<int[]>();
-            public List<ushort[]> timedNodeGroups = new List<ushort[]>();
-            public List<int[]> timedNodeSteps = new List<int[]>();
-            public List<int[]> timedNodeStepSegments = new List<int[]>();
-
             public float congestionCostFactor;
             public float minLaneSpace;
             public int lookaheadLanes;
@@ -421,41 +405,97 @@ namespace TrafficManager_ImprovedAI
             public bool obeyTMLanes;
         }
 
-        public Data data = new Data();
-        public int hashCode;
+        public string nodeTrafficLights;
+        public string nodeCrosswalk;
+        public string laneFlags;
+
+        public List<int[]> prioritySegments = new List<int[]>();
+        public List<int[]> nodeDictionary = new List<int[]>();
+        public List<int[]> manualSegments = new List<int[]>();
+        public List<int[]> timedNodes = new List<int[]>();
+        public List<ushort[]> timedNodeGroups = new List<ushort[]>();
+        public List<int[]> timedNodeSteps = new List<int[]>();
+        public List<int[]> timedNodeStepSegments = new List<int[]>();
+
+        public ImprovedAIConfig aiConfig = new ImprovedAIConfig();
+
+        public string[] md5Sums = new string[15];
 
         public override string ToString()
         {
-            var s = "\n";
-
+            var s = "\n\n";
             try {
                 s += "Traffic Manager\n";
                 s += "---------------\n";
-                s += "priority segments: " + data.prioritySegments.Count + "\n";
-                s += "nodes: " + data.nodeDictionary.Count + "\n";
-                s += "manual segments: " + data.manualSegments.Count + "\n";
-                s += "timed nodes: " + data.timedNodes.Count + "\n";
-                s += "timed node groups: " + data.timedNodeGroups.Count + "\n";
-                s += "timed node steps: " + data.timedNodeSteps.Count + "\n";
-                s += "timed node step segments: " + data.timedNodeStepSegments.Count + "\n";
-                s += "traffic lights: " + data.nodeTrafficLights.Length + "\n";
-                s += "crosswalks: " + data.nodeCrosswalk.Length + "\n";
-                s += "lane flags: " + data.laneFlags.TrimEnd(',').Split(',').Length + "\n\n";
+                s += "priority segments: " + prioritySegments.Count + "\n";
+                s += "nodes: " + nodeDictionary.Count + "\n";
+                s += "manual segments: " + manualSegments.Count + "\n";
+                s += "timed nodes: " + timedNodes.Count + "\n";
+                s += "timed node groups: " + timedNodeGroups.Count + "\n";
+                s += "timed node steps: " + timedNodeSteps.Count + "\n";
+                s += "timed node step segments: " + timedNodeStepSegments.Count + "\n";
+                s += "traffic lights: " + nodeTrafficLights.Length + "\n";
+                s += "crosswalks: " + nodeCrosswalk.Length + "\n";
+                s += "lane flags: " + laneFlags.TrimEnd(',').Split(',').Length + "\n\n";
 
                 s += "Improved AI\n";
                 s += "-----------\n";
-                s += "minimum lane space = " + data.minLaneSpace + "\n";
-                s += "congestion cost factor = " + data.congestionCostFactor + "\n";
-                s += "lookahead lanes = " + data.lookaheadLanes + "\n";
-                s += "congested lane threshold = " + data.congestedLaneThreshold + "\n";
-                s += "obey traffic manager lane flags = " + data.obeyTMLanes + "\n\n";
-
-                s += "configuration data hash code - stored: " + hashCode + " computed: " + data.GetHashCode();
+                s += "minimum lane space = " + aiConfig.minLaneSpace + "\n";
+                s += "congestion cost factor = " + aiConfig.congestionCostFactor + "\n";
+                s += "lookahead lanes = " + aiConfig.lookaheadLanes + "\n";
+                s += "congested lane threshold = " + aiConfig.congestedLaneThreshold + "\n";
+                s += "obey traffic manager lane flags = " + aiConfig.obeyTMLanes;
             } catch (Exception e) {
                 Debug.Log("error constructing string representation of configuration data, probable corruption! - " + e);
             }
-
             return s;
+        }
+
+        private void ComputeHashCodes()
+        {
+            md5Sums[0] = MD5HashGenerator.GenerateKey(nodeTrafficLights);
+            md5Sums[1] = MD5HashGenerator.GenerateKey(nodeCrosswalk);
+            md5Sums[2] = MD5HashGenerator.GenerateKey(laneFlags);
+            md5Sums[3] = MD5HashGenerator.GenerateKey(prioritySegments);
+            md5Sums[4] = MD5HashGenerator.GenerateKey(nodeDictionary);
+            md5Sums[5] = MD5HashGenerator.GenerateKey(manualSegments);
+            md5Sums[6] = MD5HashGenerator.GenerateKey(timedNodes);
+            md5Sums[7] = MD5HashGenerator.GenerateKey(timedNodeGroups);
+            md5Sums[8] = MD5HashGenerator.GenerateKey(timedNodeSteps);
+            md5Sums[9] = MD5HashGenerator.GenerateKey(timedNodeStepSegments);
+        }
+
+        private bool CheckHashCodes()
+        {
+            try {
+                /*
+                Debug.Log(hashCode[0] + " - " + MD5HashGenerator.GenerateKey(nodeTrafficLights));
+                Debug.Log(hashCode[1] + " - " + MD5HashGenerator.GenerateKey(nodeCrosswalk));
+                Debug.Log(hashCode[2] + " - " + MD5HashGenerator.GenerateKey(laneFlags));
+                Debug.Log(hashCode[3] + " - " + MD5HashGenerator.GenerateKey(prioritySegments));
+                Debug.Log(hashCode[4] + " - " + MD5HashGenerator.GenerateKey(nodeDictionary));
+                Debug.Log(hashCode[5] + " - " + MD5HashGenerator.GenerateKey(manualSegments));
+                Debug.Log(hashCode[6] + " - " + MD5HashGenerator.GenerateKey(timedNodes));
+                Debug.Log(hashCode[7] + " - " + MD5HashGenerator.GenerateKey(timedNodeGroups));
+                Debug.Log(hashCode[8] + " - " + MD5HashGenerator.GenerateKey(timedNodeSteps));
+                Debug.Log(hashCode[9] + " - " + MD5HashGenerator.GenerateKey(timedNodeStepSegments));
+                */
+                return (
+                    md5Sums[0] == MD5HashGenerator.GenerateKey(nodeTrafficLights) &&
+                    md5Sums[1] == MD5HashGenerator.GenerateKey(nodeCrosswalk) &&
+                    md5Sums[2] == MD5HashGenerator.GenerateKey(laneFlags) &&
+                    md5Sums[3] == MD5HashGenerator.GenerateKey(prioritySegments) &&
+                    md5Sums[4] == MD5HashGenerator.GenerateKey(nodeDictionary) &&
+                    md5Sums[5] == MD5HashGenerator.GenerateKey(manualSegments) &&
+                    md5Sums[6] == MD5HashGenerator.GenerateKey(timedNodes) &&
+                    md5Sums[7] == MD5HashGenerator.GenerateKey(timedNodeGroups) &&
+                    md5Sums[8] == MD5HashGenerator.GenerateKey(timedNodeSteps) &&
+                    md5Sums[9] == MD5HashGenerator.GenerateKey(timedNodeStepSegments)
+                );
+            } catch {
+                Debug.Log("missing or invalid hash code data");
+                return false;
+            }
         }
 
         public void OnPreSerialize()
@@ -496,7 +536,7 @@ namespace TrafficManager_ImprovedAI
 
         public static void Serialize(string filename, Configuration config)
         {
-            config.hashCode = config.data.GetHashCode();
+            config.ComputeHashCodes();
             Debug.Log("serializing to " + filename);
             Debug.Log(config.ToString());
 
@@ -521,14 +561,17 @@ namespace TrafficManager_ImprovedAI
                     var config = (Configuration)serializer.Deserialize(reader);
                     config.OnPostDeserialize();
                     Debug.Log(config.ToString());
+                    if (config.CheckHashCodes()) {
+                        Debug.Log("configuration hash codes verified!");
+                    } else {
+                        Debug.LogWarning("configuration hash codes mismatch, probable data corruption!");
+                    }
                     return config;
                 }
             } catch (Exception e) {
                 Debug.Log("deserialize exception " + e);
+                return null;
             }
-
-            Debug.Log("deserialized null config!");
-            return null;
         }
     }
 }

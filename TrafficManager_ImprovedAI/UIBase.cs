@@ -32,15 +32,9 @@ namespace TrafficManager_ImprovedAI
 
             // Style the button to look like a menu button.
             button.normalBgSprite = "ButtonMenu";
-            button.disabledBgSprite = "ButtonMenuDisabled";
             button.hoveredBgSprite = "ButtonMenuHovered";
-            button.focusedBgSprite = "ButtonMenuFocused";
-            button.pressedBgSprite = "ButtonMenuPressed";
-            button.textColor = new Color32(255, 255, 255, 255);
-            button.disabledTextColor = new Color32(7, 7, 7, 255);
-            button.hoveredTextColor = new Color32(7, 132, 255, 255);
-            button.focusedTextColor = new Color32(255, 255, 255, 255);
-            button.pressedTextColor = new Color32(30, 30, 44, 255);
+            button.focusedBgSprite = "ButtonMenu";
+            button.pressedBgSprite = "ButtonMenu";
 
             // Enable button sounds.
             button.playAudioEvents = true;
@@ -49,7 +43,7 @@ namespace TrafficManager_ImprovedAI
             button.relativePosition = new Vector3(160f, 20f);
 
             // Respond to button click.
-            button.eventClick += tmClick;
+            button.eventClick += TMClick;
 
             button = (UIButton)uiView.AddUIComponent(typeof(UIButton));
 
@@ -62,15 +56,9 @@ namespace TrafficManager_ImprovedAI
 
             // Style the button to look like a menu button.
             button.normalBgSprite = "ButtonMenu";
-            button.disabledBgSprite = "ButtonMenuDisabled";
             button.hoveredBgSprite = "ButtonMenuHovered";
-            button.focusedBgSprite = "ButtonMenuFocused";
-            button.pressedBgSprite = "ButtonMenuPressed";
-            button.textColor = new Color32(255, 255, 255, 255);
-            button.disabledTextColor = new Color32(7, 7, 7, 255);
-            button.hoveredTextColor = new Color32(7, 132, 255, 255);
-            button.focusedTextColor = new Color32(255, 255, 255, 255);
-            button.pressedTextColor = new Color32(30, 30, 44, 255);
+            button.focusedBgSprite = "ButtonMenu";
+            button.pressedBgSprite = "ButtonMenu";
 
             // Enable button sounds.
             button.playAudioEvents = true;
@@ -79,15 +67,26 @@ namespace TrafficManager_ImprovedAI
             button.relativePosition = new Vector3(220f, 20f);
 
             // Respond to button click.
-            button.eventClick += aiClick;
-
+            button.eventClick += AIClick;
         }
 
-        private void aiClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void TMClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (aiPanel != null && aiPanel.isVisible) {
+                aiPanel.isVisible = false;
+            }
+            if (tmPanel == null || !tmPanel.isVisible) {
+                ShowTMPanel();
+            } else {
+                HideTMPanel();
+            }
+        }
+
+        private void AIClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (aiPanel == null || !aiPanel.isVisible) {
                 if (tmPanel != null && tmPanel.isVisible) {
-                    Close();
+                    HideTMPanel();
                 }
                 if (aiPanel == null) {
                     aiPanel = (AIPanel) UIView.GetAView().AddUIComponent(typeof(AIPanel));
@@ -98,24 +97,12 @@ namespace TrafficManager_ImprovedAI
             }
         }
 
-        private void tmClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (aiPanel != null && aiPanel.isVisible) {
-                aiPanel.isVisible = false;
-            }
-            if (tmPanel == null || !tmPanel.isVisible) {
-                Show();
-            } else {
-                Close();
-            }
-        }
-
         public bool isVisible()
         {
             return (tmPanel != null && tmPanel.isVisible);
         }
 
-        public void Show()
+        public void ShowTMPanel()
         {
             if (tmPanel == null) {
                 tmPanel = (UITrafficManager) UIView.GetAView().AddUIComponent(typeof(UITrafficManager));
@@ -124,7 +111,7 @@ namespace TrafficManager_ImprovedAI
             LoadingExtension.Instance.SetToolMode(TrafficManagerMode.TrafficLight);
         }
 
-        public void Close()
+        public void HideTMPanel()
         {
             if (tmPanel != null) {
                 tmPanel.isVisible = false;
@@ -132,6 +119,18 @@ namespace TrafficManager_ImprovedAI
             UITrafficManager.uistate = UITrafficManager.UIState.None;
             TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             LoadingExtension.Instance.SetToolMode(TrafficManagerMode.None);
+        }
+
+        public void DestroyPanels()
+        {
+            HideTMPanel();
+            if (tmPanel != null) {
+                UIView.Destroy(tmPanel);
+            }
+            if (aiPanel != null) {
+                aiPanel.isVisible = false;
+                UIView.Destroy(aiPanel);
+            }
         }
     }
 }

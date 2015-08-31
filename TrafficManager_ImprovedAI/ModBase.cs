@@ -37,12 +37,12 @@ namespace TrafficManager_ImprovedAI
 
 			if (LoadingExtension.Instance.ToolMode != TrafficManagerMode.None && ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool)
 			{
-				LoadingExtension.Instance.UI.Close();
+				LoadingExtension.Instance.UI.HideTMPanel();
 			}
 
 			if (ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool && LoadingExtension.Instance.UI.isVisible())
 			{
-				LoadingExtension.Instance.UI.Close();
+				LoadingExtension.Instance.UI.HideTMPanel();
 			}
 
 			if (!LoadingExtension.Instance.detourInited)
@@ -94,7 +94,7 @@ namespace TrafficManager_ImprovedAI
 
 			if (Input.GetKeyDown(KeyCode.Escape))
 			{
-				LoadingExtension.Instance.UI.Close();
+				LoadingExtension.Instance.UI.HideTMPanel();
 			}
 		}
 	}
@@ -159,15 +159,14 @@ namespace TrafficManager_ImprovedAI
 		public override void OnLevelUnloading()
 		{
 			base.OnLevelUnloading();
-
-			foreach (RedirectCallsState rcs in m_redirectionStates)
-				RedirectionHelper.RevertRedirect(rcs);
-
-			TrafficPriority.prioritySegments.Clear();
+            LoadingExtension.Instance.UI.DestroyPanels();
+            foreach (RedirectCallsState rcs in m_redirectionStates) {
+                RedirectionHelper.RevertRedirect(rcs);
+            }
+   			TrafficPriority.prioritySegments.Clear();
 			CustomRoadAI.nodeDictionary.Clear();
 			TrafficLightsManual.ManualSegments.Clear();
 			TrafficLightsTimed.timedScripts.Clear();
-
 			LoadingExtension.Instance.nodeSimulationLoaded = false;
 		}
 

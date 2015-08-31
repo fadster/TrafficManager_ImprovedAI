@@ -65,11 +65,11 @@ namespace TrafficManager_ImprovedAI
             canFocus = true;
             isInteractive = true;
 
-            boxLabel.relativePosition = new Vector3(10, 0);
+            boxLabel.relativePosition = new Vector3(8, 0);
             boxLabel.text = LabelText;
             boxLabel.autoSize = true;
 
-            checkBox.relativePosition = new Vector3(150, 0);
+            checkBox.relativePosition = new Vector3(20 + boxLabel.width, -1f);
             checkBox.height = 20;
             checkBox.width = 20;
 
