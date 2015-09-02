@@ -131,14 +131,24 @@ namespace TrafficManager_ImprovedAI
         }
 
         private static bool m_obeyTMLanes = true;
-        public static bool obeyTMLanes { get { return m_obeyTMLanes; } set { m_obeyTMLanes = value; } }
+        public static bool obeyTMLaneFlags { get { return m_obeyTMLanes; } set { m_obeyTMLanes = value; } }
 
         public static void ResetAIParameters()
         {
-            congestionCostFactor = DEF_CONGESTION_COST_FACTOR;
-            minLaneSpace = DEF_MIN_LANE_SPACE;
-            congestedLaneThreshold = DEF_CONGESTED_LANE_THRESHOLD;
-            lookaheadLanes = DEF_LOOKAHEAD_LANES;
+            m_congestionCostFactor = DEF_CONGESTION_COST_FACTOR;
+            m_minLaneSpace = DEF_MIN_LANE_SPACE;
+            m_lookaheadLanes = DEF_LOOKAHEAD_LANES;
+            m_congestedLaneThreshold = DEF_CONGESTED_LANE_THRESHOLD;
+            m_obeyTMLanes = true;
+        }
+
+        public static void LoadAIParameters(Configuration.ImprovedAIConfig parameters)
+        {
+            m_congestionCostFactor = parameters.congestionCostFactor;
+            m_minLaneSpace = parameters.minLaneSpace;
+            m_lookaheadLanes = parameters.lookaheadLanes;
+            m_congestedLaneThreshold = parameters.congestedLaneThreshold;
+            m_obeyTMLanes = parameters.obeyTMLaneFlags;
         }
 
         private void Awake()

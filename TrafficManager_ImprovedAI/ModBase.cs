@@ -145,6 +145,8 @@ namespace TrafficManager_ImprovedAI
 			{
 				ReplacePathManager();
 				CustomCarAI.RedirectCalls(m_redirectionStates);
+                CustomPassengerCarAI.RedirectCalls(m_redirectionStates);
+                CustomCargoTruckAI.RedirectCalls(m_redirectionStates);
 
 				if (Instance == null)
 				{

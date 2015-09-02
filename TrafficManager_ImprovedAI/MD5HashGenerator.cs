@@ -8,6 +8,8 @@ using System.Runtime.Serialization;
 using System.Reflection;
 using System.Threading;
 
+// From http://www.codeproject.com/Articles/21312/Generating-MD-Hash-out-of-C-Objects
+
 namespace TrafficManager_ImprovedAI
 {
     /// <summary>

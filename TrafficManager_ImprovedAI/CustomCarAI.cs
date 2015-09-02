@@ -289,6 +289,8 @@ namespace TrafficManager_ImprovedAI
             if (flag5)
             {
                 vehicleData.m_blockCounter = (byte)Mathf.Min((int)(vehicleData.m_blockCounter + 1), 255);
+                if ((vehicleData.m_blockCounter == 100 || vehicleData.m_blockCounter == 150) && !LoadingExtension.Instance.despawnEnabled)
+                    vehicleData.m_blockCounter++;
             }
             else
             {
@@ -1046,6 +1048,94 @@ namespace TrafficManager_ImprovedAI
         {
             MethodInfo originalMethod = typeof(CarAI).GetMethods().FirstOrDefault(m => m.Name == "SimulationStep" && m.GetParameters().Length == 6);
             MethodInfo replacementMethod = typeof(CustomCarAI).GetMethods().FirstOrDefault(m => m.Name == "SimulationStep" && m.GetParameters().Length == 6);
+
+            if (originalMethod != null && replacementMethod != null)
+            {
+                callStates.Add(RedirectionHelper.RedirectCalls(originalMethod, replacementMethod));
+            }
+        }
+    }
+
+    public class CustomPassengerCarAI : CarAI
+    {
+        public override void SimulationStep(ushort vehicleID, ref Vehicle data, Vector3 physicsLodRefPos)
+        {
+            if (!LoadingExtension.Instance.despawnEnabled) {
+                data.m_flags &= ~Vehicle.Flags.Congestion;
+            }
+
+            if ((data.m_flags & Vehicle.Flags.Congestion) != Vehicle.Flags.None)
+            {
+                Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
+            }
+            else
+            {
+                base.SimulationStep(vehicleID, ref data, physicsLodRefPos);
+            }
+        }
+
+        public static void RedirectCalls(List<RedirectCallsState> callStates)
+        {
+            MethodInfo originalMethod = typeof(PassengerCarAI).GetMethods().FirstOrDefault(m => m.Name == "SimulationStep" && m.GetParameters().Length == 3);
+            MethodInfo replacementMethod = typeof(CustomPassengerCarAI).GetMethods().FirstOrDefault(m => m.Name == "SimulationStep" && m.GetParameters().Length == 3);
+
+            if (originalMethod != null && replacementMethod != null)
+            {
+                callStates.Add(RedirectionHelper.RedirectCalls(originalMethod, replacementMethod));
+            }
+        }
+    }
+
+    public class CustomCargoTruckAI : CarAI
+    {
+        public override void SimulationStep(ushort vehicleID, ref Vehicle data, Vector3 physicsLodRefPos)
+        {
+            if (!LoadingExtension.Instance.despawnEnabled) {
+                data.m_flags &= ~Vehicle.Flags.Congestion;
+            }
+
+            if ((data.m_flags & Vehicle.Flags.Congestion) != Vehicle.Flags.None)
+            {
+                Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
+            }
+            else
+            {
+                if ((data.m_flags & Vehicle.Flags.WaitingTarget) != Vehicle.Flags.None && (data.m_waitCounter += 1) > 20)
+                {
+                    this.RemoveOffers(vehicleID, ref data);
+                    data.m_flags &= ~Vehicle.Flags.WaitingTarget;
+                    data.m_flags |= Vehicle.Flags.GoingBack;
+                    data.m_waitCounter = 0;
+                    if (!this.StartPathFind(vehicleID, ref data))
+                    {
+                        data.Unspawn(vehicleID);
+                    }
+                }
+                base.SimulationStep(vehicleID, ref data, physicsLodRefPos);
+            }
+        }
+
+        private void RemoveOffers(ushort vehicleID, ref Vehicle data)
+        {
+            if ((data.m_flags & Vehicle.Flags.WaitingTarget) != Vehicle.Flags.None)
+            {
+                TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
+                offer.Vehicle = vehicleID;
+                if ((data.m_flags & Vehicle.Flags.TransferToSource) != Vehicle.Flags.None)
+                {
+                    Singleton<TransferManager>.instance.RemoveIncomingOffer((TransferManager.TransferReason)data.m_transferType, offer);
+                }
+                else if ((data.m_flags & Vehicle.Flags.TransferToTarget) != Vehicle.Flags.None)
+                {
+                    Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)data.m_transferType, offer);
+                }
+            }
+        }
+
+        public static void RedirectCalls(List<RedirectCallsState> callStates)
+        {
+            MethodInfo originalMethod = typeof(CargoTruckAI).GetMethods().FirstOrDefault(m => m.Name == "SimulationStep" && m.GetParameters().Length == 3);
+            MethodInfo replacementMethod = typeof(CustomCargoTruckAI).GetMethods().FirstOrDefault(m => m.Name == "SimulationStep" && m.GetParameters().Length == 3);
 
             if (originalMethod != null && replacementMethod != null)
             {

@@ -5,6 +5,8 @@ using ColossalFramework.UI;
 using ICities;
 using UnityEngine;
 
+// Adapted from Road Assistant mod.
+
 namespace TrafficManager_ImprovedAI
 {
     public class UILabelledBox : UIPanel
@@ -38,6 +40,10 @@ namespace TrafficManager_ImprovedAI
             set { width = value; }
 
         }
+
+        // need to handle tick/untick events
+
+
         public override void Awake()
         {
             base.Awake();

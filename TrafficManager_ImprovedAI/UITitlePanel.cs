@@ -5,6 +5,8 @@ using ColossalFramework.UI;
 using ICities;
 using UnityEngine;
 
+// Adapted from Road Assistant mod.
+
 namespace TrafficManager_ImprovedAI
 {
     // Shamelessly ripped from: https://github.com/justacid/Skylines-ExtendedPublicTransport/blob/master/ExtendedPublicTransportUI/UITitleContainer.cs

@@ -13,7 +13,7 @@ namespace TrafficManager_ImprovedAI
         private static UISliderInput minLaneSpace;
         private static UISliderInput lookaheadLanes;
         private static UISliderInput congestedLaneThreshold;
-        private static UILabelledBox obeyTMLanes;
+        private static UILabelledBox obeyTMLaneFlags;
         private static UIButton resetButton;
 
         public override void Start()
@@ -98,11 +98,17 @@ namespace TrafficManager_ImprovedAI
             congestedLaneThreshold.SliderValue = CustomPathFind.congestedLaneThreshold;
 
             yVal += 58;
-            obeyTMLanes = this.AddUIComponent<UILabelledBox>();
-            obeyTMLanes.Parent = this;
-            obeyTMLanes.relativePosition = new Vector3(0, yVal);
-            obeyTMLanes.LabelText = "obey traffic manager lane flags";
-            obeyTMLanes.CheckBox.isChecked = CustomPathFind.obeyTMLanes;
+            obeyTMLaneFlags = this.AddUIComponent<UILabelledBox>();
+            obeyTMLaneFlags.Parent = this;
+            obeyTMLaneFlags.relativePosition = new Vector3(0, yVal);
+            obeyTMLaneFlags.LabelText = "obey traffic manager lane flags";
+            obeyTMLaneFlags.CheckBox.isChecked = CustomPathFind.obeyTMLaneFlags;
+            obeyTMLaneFlags.CheckBox.eventCheckChanged += delegate(UIComponent component, bool value) {
+                while (!Monitor.TryEnter(obeyTMLaneFlags, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
+                }
+                CustomPathFind.obeyTMLaneFlags = value;
+                Monitor.Exit(obeyTMLaneFlags);
+            };
 
             resetButton = this.AddUIComponent<UIButton>();
             resetButton.text = "reset";
@@ -116,7 +122,6 @@ namespace TrafficManager_ImprovedAI
             resetButton.relativePosition = new Vector3(378f, yVal - 8.5f);
             resetButton.eventClick += delegate(UIComponent component, UIMouseEventParameter eventParam) {
                 CustomPathFind.ResetAIParameters();
-                obeyTMLanes.CheckBox.isChecked = true;
             };
         }
 
@@ -139,13 +144,8 @@ namespace TrafficManager_ImprovedAI
 
         public void SetObeyTMLanes(Boolean obey)
         {
-            obeyTMLanes.CheckBox.isChecked = obey;
-            CustomPathFind.obeyTMLanes = obey;
-        }
-
-        public static bool IsObeyingTMLanes()
-        {
-            return obeyTMLanes.CheckBox.isChecked;
+            obeyTMLaneFlags.CheckBox.isChecked = obey;
+            CustomPathFind.obeyTMLaneFlags = obey;
         }
 
         private void ReconcileValues()
@@ -173,6 +173,12 @@ namespace TrafficManager_ImprovedAI
                 }
                 lookaheadLanes.SliderValue = CustomPathFind.lookaheadLanes;
                 Monitor.Exit(lookaheadLanes);
+            }
+            if (obeyTMLaneFlags.CheckBox.isChecked != CustomPathFind.obeyTMLaneFlags) {
+                while (!Monitor.TryEnter(obeyTMLaneFlags, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
+                }
+                obeyTMLaneFlags.CheckBox.isChecked = CustomPathFind.obeyTMLaneFlags;
+                Monitor.Exit(obeyTMLaneFlags);
             }
         }
     }

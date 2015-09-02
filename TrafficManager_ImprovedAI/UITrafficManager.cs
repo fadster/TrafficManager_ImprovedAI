@@ -36,6 +36,7 @@ namespace TrafficManager_ImprovedAI
                     buttonCrosswalk.focusedBgSprite = "ButtonMenu";
                     buttonClearTraffic.focusedBgSprite = "ButtonMenu";
                     buttonLaneChange.focusedBgSprite = "ButtonMenu";
+                    buttonToggleDespawn.focusedBgSprite = "ButtonMenu";
                 }
 
                 _uistate = value;
@@ -50,6 +51,7 @@ namespace TrafficManager_ImprovedAI
         private static UIButton buttonLaneChange;
         private static UIButton buttonCrosswalk;
         private static UIButton buttonClearTraffic;
+        private static UIButton buttonToggleDespawn;
 
         public static TrafficLightTool trafficLightTool;
 
@@ -62,7 +64,7 @@ namespace TrafficManager_ImprovedAI
             this.backgroundSprite = "GenericPanel";
             this.color = new Color32(75, 75, 135, 255);
             this.width = 250;
-            this.height = 310;
+            this.height = 350;
             this.relativePosition = new Vector3(10.48f, 80f);
 
             UILabel title = this.AddUIComponent<UILabel>();
@@ -76,6 +78,7 @@ namespace TrafficManager_ImprovedAI
             buttonLaneChange = _createButton("Change lanes", new Vector3(35f, 190f), clickChangeLanes);
             buttonCrosswalk = _createButton("Add/Remove Crosswalk", new Vector3(35f, 230f), clickCrosswalk);
             buttonClearTraffic = _createButton("Clear Traffic", new Vector3(35f, 270f), clickClearTraffic);
+            buttonToggleDespawn = _createButton(LoadingExtension.Instance.despawnEnabled ? "Disable Despawning" : "Enable Despawning", new Vector3(35f, 310f), clickToggleDespawn);
         }
 
         private UIButton _createButton(string text, Vector3 pos, MouseEventHandler eventClick)
@@ -211,6 +214,12 @@ namespace TrafficManager_ImprovedAI
 
                 TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
             }
+        }
+
+        private static void clickToggleDespawn(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            LoadingExtension.Instance.despawnEnabled = !LoadingExtension.Instance.despawnEnabled;
+            buttonToggleDespawn.text = LoadingExtension.Instance.despawnEnabled ? "Disable despawning" : "Enable despawning";
         }
     }
 }
