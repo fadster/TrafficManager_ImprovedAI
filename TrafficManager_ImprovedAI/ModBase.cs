@@ -148,7 +148,7 @@ namespace TrafficManager_ImprovedAI
                 CustomPassengerCarAI.RedirectCalls(m_redirectionStates);
                 CustomCargoTruckAI.RedirectCalls(m_redirectionStates);
 
-				if (Instance == null)
+                if (Instance == null)
 				{
 					Instance = this;
 				}

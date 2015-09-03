@@ -226,8 +226,9 @@ namespace TrafficManager_ImprovedAI
 
                     Singleton<NetManager>.instance.m_lanes.m_buffer[laneId].m_flags = Convert.ToUInt16(split[1]);
                 }
-            } catch (Exception ex) {
-                Debug.Log("exception reading lane flags at lane " + i + " lanes[] = [" + lanes[i] + "] - " + ex);
+            } catch {
+                // Empty config, ignore exception.
+                //Debug.Log("exception reading lane flags at lane " + i + " lanes[] = [" + lanes[i] + "] - " + ex);
             }
 
             if (configuration.aiConfig != null && configuration.aiConfig.congestionCostFactor > 0) {
@@ -241,22 +242,29 @@ namespace TrafficManager_ImprovedAI
 
         public void OnSaveData()
         {
-
             FastList<byte> data = new FastList<byte>();
-
+//            Debug.Log("OnSaveData() 1");    
             GenerateUniqueID(); 
 
             byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueID);
             foreach (byte uniqueIdByte in uniqueIdBytes) {
                 data.Add(uniqueIdByte);
             }
+//            Debug.Log("OnSaveData() 2");
 
             byte[] dataToSave = data.ToArray();
             SerializableData.SaveData(dataID, dataToSave);
 
+//            Debug.Log("OnSaveData() 3");
             var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
+//            Debug.Log("OnSaveData()");
 
             var configuration = new Configuration();
+//            Debug.Log("OnSaveData() 4");
+
+            configuration.laneFlags = "";
+            configuration.nodeCrosswalk = "";
+            configuration.nodeTrafficLights = "";
 
             for (var i = 0; i < 32768; i++) {
                 if (TrafficPriority.prioritySegments.ContainsKey(i)) {
@@ -267,6 +275,8 @@ namespace TrafficManager_ImprovedAI
                             (int)TrafficPriority.prioritySegments[i].instance_1.type
                         });
                     } 
+                    //Debug.Log("OnSaveData() 5");
+
                     if (TrafficPriority.prioritySegments[i].node_2 != 0) {
                         configuration.prioritySegments.Add(new int[3] {
                             TrafficPriority.prioritySegments[i].node_2,
@@ -275,6 +285,7 @@ namespace TrafficManager_ImprovedAI
                         });
                     }
                 }
+                //Debug.Log("OnSaveData() 6");
 
                 if (CustomRoadAI.nodeDictionary.ContainsKey((ushort)i)) {
                     var nodeDict = CustomRoadAI.nodeDictionary[(ushort)i];
@@ -286,6 +297,7 @@ namespace TrafficManager_ImprovedAI
                         Convert.ToInt32(nodeDict.TimedTrafficLightsActive)
                     });
                 }
+//                Debug.Log("OnSaveData() 7");
 
                 if (TrafficLightsManual.ManualSegments.ContainsKey(i)) {
                     if (TrafficLightsManual.ManualSegments[i].node_1 != 0) {
@@ -304,8 +316,11 @@ namespace TrafficManager_ImprovedAI
                             Convert.ToInt32(manualSegment.pedestrianEnabled)
                         });
                     }
+                    //Debug.Log("OnSaveData() 8");
+
                     if (TrafficLightsManual.ManualSegments[i].node_2 != 0) {
                         var manualSegment = TrafficLightsManual.ManualSegments[i].instance_2;
+                        //Debug.Log("OnSaveData() 9");
 
                         configuration.manualSegments.Add(new int[10] {
                             (int)manualSegment.node,
@@ -321,6 +336,7 @@ namespace TrafficManager_ImprovedAI
                         });
                     }
                 }
+//                Debug.Log("OnSaveData() 10");
 
                 if (TrafficLightsTimed.timedScripts.ContainsKey((ushort)i)) {
                     var timedNode = TrafficLightsTimed.GetTimedLight((ushort)i);
@@ -357,6 +373,7 @@ namespace TrafficManager_ImprovedAI
                     }
                 }
             }
+            //Debug.Log("OnSaveData() 11");
 
             for (var i = 0; i < Singleton<NetManager>.instance.m_nodes.m_buffer.Length; i++) {
                 var nodeFlags = Singleton<NetManager>.instance.m_nodes.m_buffer[i].m_flags;
@@ -371,6 +388,7 @@ namespace TrafficManager_ImprovedAI
                     }
                 }
             }
+            //Debug.Log("OnSaveData() 12");
 
             var laneCount = 0;
             for (var i = 0; i < Singleton<NetManager>.instance.m_lanes.m_buffer.Length; i++) {
@@ -381,7 +399,10 @@ namespace TrafficManager_ImprovedAI
                     laneCount++;
                 }
             }
-            configuration.laneFlags = configuration.laneFlags.TrimEnd(',');
+
+            if (configuration.laneFlags != null && configuration.laneFlags.Length > 0) {
+                configuration.laneFlags = configuration.laneFlags.TrimEnd(',');
+            }
 
             configuration.aiConfig.congestionCostFactor = CustomPathFind.congestionCostFactor;
             configuration.aiConfig.minLaneSpace = CustomPathFind.minLaneSpace;

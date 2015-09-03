@@ -45,6 +45,7 @@ namespace TrafficManager_ImprovedAI
                                 {
                                     if (nodeDictionary[nodeID].FlagTimedTrafficLights)
                                     {
+                                        // TODO: this fails after an upgrade
                                         var timedNode = TrafficLightsTimed.GetTimedLight(nodeID);
 
                                         for (var j = 0; j < timedNode.nodeGroup.Count; j++)
