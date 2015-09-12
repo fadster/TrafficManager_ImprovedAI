@@ -19,7 +19,8 @@ namespace TrafficManager_ImprovedAI
             TimedControlLights,
             LaneChange,
             LaneRestrictions,
-            Crosswalk
+            Crosswalk,
+            Parking
         }
 
         private static UIState _uistate = UIState.None;
@@ -37,6 +38,9 @@ namespace TrafficManager_ImprovedAI
                     buttonClearTraffic.focusedBgSprite = "ButtonMenu";
                     buttonLaneChange.focusedBgSprite = "ButtonMenu";
                     buttonToggleDespawn.focusedBgSprite = "ButtonMenu";
+                    #if DEV
+                    buttonParking.focusedBgSprite = "ButtonMenu";
+                    #endif
                 }
 
                 _uistate = value;
@@ -52,6 +56,7 @@ namespace TrafficManager_ImprovedAI
         private static UIButton buttonCrosswalk;
         private static UIButton buttonClearTraffic;
         private static UIButton buttonToggleDespawn;
+        private static UIButton buttonParking;
 
         public static TrafficLightTool trafficLightTool;
 
@@ -65,6 +70,10 @@ namespace TrafficManager_ImprovedAI
             this.color = new Color32(75, 75, 135, 255);
             this.width = 250;
             this.height = 350;
+            #if DEV
+            this.height += 40;
+            #endif
+
             this.relativePosition = new Vector3(10.48f, 80f);
 
             UILabel title = this.AddUIComponent<UILabel>();
@@ -79,6 +88,9 @@ namespace TrafficManager_ImprovedAI
             buttonCrosswalk = _createButton("Add/Remove Crosswalk", new Vector3(35f, 230f), clickCrosswalk);
             buttonClearTraffic = _createButton("Clear Traffic", new Vector3(35f, 270f), clickClearTraffic);
             buttonToggleDespawn = _createButton(LoadingExtension.Instance.despawnEnabled ? "Disable Despawning" : "Enable Despawning", new Vector3(35f, 310f), clickToggleDespawn);
+            #if DEV
+            buttonParking = _createButton("Parking", new Vector3(35f, 350f), clickParking);
+            #endif
         }
 
         private UIButton _createButton(string text, Vector3 pos, MouseEventHandler eventClick)
@@ -220,6 +232,19 @@ namespace TrafficManager_ImprovedAI
         {
             LoadingExtension.Instance.despawnEnabled = !LoadingExtension.Instance.despawnEnabled;
             buttonToggleDespawn.text = LoadingExtension.Instance.despawnEnabled ? "Disable despawning" : "Enable despawning";
+        }
+
+        private void clickParking(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (_uistate != UIState.Parking) {
+                _uistate = UIState.Parking;
+                buttonParking.focusedBgSprite = "ButtonMenuFocused";
+                TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.Parking);
+            } else {
+                _uistate = UIState.None;
+                buttonParking.focusedBgSprite = "ButtonMenu";
+                TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
+            }
         }
     }
 }

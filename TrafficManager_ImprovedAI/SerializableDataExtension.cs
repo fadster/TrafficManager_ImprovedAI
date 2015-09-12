@@ -221,8 +221,11 @@ namespace TrafficManager_ImprovedAI
                     uint laneId = Convert.ToUInt32(split[0]);
                     //NetLane lane = Singleton<NetManager>.instance.m_lanes.m_buffer [laneId];
                     //ushort segmentId = lane.m_segment;
-                    //NetSegment segment = Singleton<NetManager>.instance.m_segments.m_buffer [segmentId];
+                    //NetSegment segment = Singleton<NetManager>.instance.m_segments.m_buffer[segmentId];
                     //segment.Info.m_netAI.UpdateLanes(segmentId, ref segment, false);
+                    //NetLane.Flags flags = (NetLane.Flags) Convert.ToUInt16(split[1]);
+
+    //                    if (flags & NetLane.Flags.
 
                     Singleton<NetManager>.instance.m_lanes.m_buffer[laneId].m_flags = Convert.ToUInt16(split[1]);
                 }

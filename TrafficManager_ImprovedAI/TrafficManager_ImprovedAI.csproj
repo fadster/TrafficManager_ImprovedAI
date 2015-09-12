@@ -14,7 +14,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;DEV</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -70,6 +70,7 @@
     <Compile Include="UITitlePanel.cs" />
     <Compile Include="UILabelledBox.cs" />
     <Compile Include="MD5HashGenerator.cs" />
+    <Compile Include="CustomPassengerCarAI.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\light_1_1.png" />
@@ -105,4 +106,7 @@
     <EmbeddedResource Include="Resources\sign_yield.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="clone prefab.txt" />
+  </ItemGroup>
 </Project>

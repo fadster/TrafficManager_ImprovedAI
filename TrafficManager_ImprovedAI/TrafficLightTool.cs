@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Net.Mime;
 using System.Reflection;
+using System.Linq;
 using ColossalFramework;
 using ColossalFramework.Math;
 using ColossalFramework.UI;
@@ -23,7 +24,8 @@ namespace TrafficManager_ImprovedAI
             TimedLightsShowLights,
             LaneChange,
             LaneRestrictions,
-            Crosswalk
+            Crosswalk,
+            Parking
         }
 
         public static ToolMode toolMode;
@@ -36,6 +38,7 @@ namespace TrafficManager_ImprovedAI
 
         private int _hoveredSegmentIdx;
         private static int _selectedSegmentIdx;
+        public static int parkingSegment;
 
         public static List<ushort> SelectedNodeIndexes = new List<ushort>();
         public static List<int> SelectedSegmentIndexes = new List<int>(); 
@@ -318,6 +321,10 @@ namespace TrafficManager_ImprovedAI
             {
                 _renderOverlayCrosswalk(cameraInfo);
             }
+            else if (toolMode == ToolMode.Parking)
+            {
+                _renderOverlayParking(cameraInfo);
+            }
             else
             {
                 base.RenderOverlay(cameraInfo);
@@ -510,6 +517,17 @@ namespace TrafficManager_ImprovedAI
             }
         }
 
+        public void _renderOverlayParking(RenderManager.CameraInfo cameraInfo)
+        {
+            if (_hoveredSegmentIdx != 0)
+            {
+                var segment = Singleton<NetManager>.instance.m_segments.m_buffer[_hoveredSegmentIdx];
+
+                NetTool.RenderOverlay(cameraInfo, ref segment, GetToolColor(false, false),
+                    GetToolColor(false, false));
+            }
+        }
+
         public void _renderOverlayLaneRestrictions(RenderManager.CameraInfo cameraInfo)
         {
             if (SelectedSegmentIndexes.Count > 0)
@@ -628,6 +646,14 @@ namespace TrafficManager_ImprovedAI
 
         protected override void OnToolUpdate()
         {
+            if (Input.GetMouseButton(1)) {
+                if (_hoveredSegmentIdx != 0) {
+                    var segment = Singleton<NetManager>.instance.m_segments.m_buffer[_hoveredSegmentIdx];
+                    var info = segment.Info;
+                    Debug.Log("segment = " + _hoveredSegmentIdx + " info = " + info.ToString()); 
+                }
+            }
+
             _mouseDown = Input.GetMouseButton(0);
 
             if (_mouseDown)
@@ -757,7 +783,13 @@ namespace TrafficManager_ImprovedAI
                     }
                     if (_hoveredSegmentIdx != 0)
                     {
-                        if (toolMode == ToolMode.Crosswalk)
+                        if (toolMode == ToolMode.Parking)
+                        {
+                            Debug.Log("OnToolUpdate() - selected = " + _selectedSegmentIdx + " hovered = " + _hoveredSegmentIdx);
+                            _selectedSegmentIdx = _hoveredSegmentIdx;
+                            uiClickedSegment = true;
+                        }
+                        else if (toolMode == ToolMode.Crosswalk)
                         {
                             var segment = Singleton<NetManager>.instance.m_segments.m_buffer[_hoveredSegmentIdx];
 
@@ -899,29 +931,23 @@ namespace TrafficManager_ImprovedAI
                 uiClickedSegment = false;
             }
 
-            if (toolMode == ToolMode.AddPrioritySigns)
-            {
+            if (toolMode == ToolMode.AddPrioritySigns) {
                 _guiPrioritySigns();
-            }
-            else if (toolMode == ToolMode.ManualSwitch)
-            {
+            } else if (toolMode == ToolMode.ManualSwitch) {
                 _guiManualTrafficLights();
-            }
-            else if (toolMode == ToolMode.TimedLightsSelectNode)
-            {
+            } else if (toolMode == ToolMode.TimedLightsSelectNode) {
                 _guiTimedTrafficLightsNode();
-            }
-            else if (toolMode == ToolMode.TimedLightsShowLights)
-            {
+            } else if (toolMode == ToolMode.TimedLightsShowLights) {
                 _guiTimedTrafficLights();
-            }
-            else if (toolMode == ToolMode.LaneChange)
-            {
+            } else if (toolMode == ToolMode.LaneChange) {
                 _guiLaneChange();
-            }
-            else if (toolMode == ToolMode.LaneRestrictions)
-            {
+            } else if (toolMode == ToolMode.LaneRestrictions) {
                 _guiLaneRestrictions();
+            } else if (toolMode == ToolMode.Parking && uiClickedSegment) {
+                _selectedSegmentIdx = _hoveredSegmentIdx;                
+                // Debug.Log("OnToolGUI() - uiClickedSegment = " + uiClickedSegment);
+                _toggleParking();
+                uiClickedSegment = false;
             }
         }
 
@@ -2399,6 +2425,135 @@ namespace TrafficManager_ImprovedAI
             {
                 _hoveredButton[0] = 0;
                 _hoveredButton[1] = 0;
+            }
+        }
+
+        protected NetInfo cloneNetInfo(NetInfo from)
+        {
+            NetInfo to = new NetInfo();
+            foreach (FieldInfo fi in typeof(NetInfo).BaseType.GetFields())
+            {
+                fi.SetValue(to, fi.GetValue(from));
+            }
+            return to;
+        }
+
+
+        static readonly string[] sm_collectionPrefixes = new string[] { "", "Europe " };
+
+        T TryGetComponent<T>(string name)
+        {
+            foreach (string prefix in sm_collectionPrefixes)
+            {
+                GameObject go = GameObject.Find(prefix + name);
+                if (go != null)
+                    return go.GetComponent<T>();
+            }
+
+            return default(T);
+        }
+
+        protected NetInfo CreateNoParkingNetInfo()
+        {
+            NetCollection roadsNetCollection = TryGetComponent<NetCollection>("Road");
+
+           // NetInfo smallRoad = CloneRoad(prefabName, newName, roadType, collection, FileManager.Folder.SmallRoad);
+            //NetInfo road = ClonePrefab<NetInfo>(prefabName + GetDecoratedName(roadType & ~RoadType.OneWay), collection.m_prefabs, newName, transform, false, ghostMode);
+//            if (road == null)
+                //return null;
+
+
+            NetInfo originalPrefab = roadsNetCollection.m_prefabs.FirstOrDefault(p => p.name == "Basic Road");
+            if (originalPrefab == null)
+                return null;
+
+            GameObject instance = GameObject.Instantiate<GameObject>(originalPrefab.gameObject);
+            instance.name = "Basic Road - No Parking";
+            instance.transform.SetParent(transform);
+            instance.transform.localPosition = new Vector3(-7500, -7500, -7500);
+            NetInfo newPrefab = instance.GetComponent<NetInfo>();
+            instance.SetActive(false);
+            newPrefab.InitializePrefab();
+
+//            newPrefab.m_prefabInitialized = false;
+
+
+
+            NetInfo.Lane[] lanes = new NetInfo.Lane[6];
+            Array.Copy(newPrefab.m_lanes, lanes, 6);
+            //Array.Copy(smallRoad.m_lanes, smallRoad.m_lanes.Length - 2, lanes, 2, 2);
+            newPrefab.m_lanes = lanes;
+
+//            smallRoad.m_lanes[2] = new NetInfoLane(smallRoad.m_lanes[2], RoadManager.VehicleType.Bus | RoadManager.VehicleType.Emergency, NetInfoLane.SpecialLaneType.BusLane);
+            //smallRoad.m_lanes[2].m_laneProps = laneProps;
+            //smallRoad.m_lanes[2].m_speedLimit = 1.6f;
+            //if ((roadType & (RoadType.Grass | RoadType.Trees)) == RoadType.Normal)
+            //{
+            //    smallRoad.m_lanes[2].m_position -= 1f;
+            //    smallRoad.m_lanes[2].m_stopOffset += 1f;
+            //}
+
+            return newPrefab;
+        }
+
+
+
+        protected Dictionary<NetInfo, NetInfo> noParkingNetInfoMap = new Dictionary<NetInfo, NetInfo>();
+
+        protected void _toggleParking()
+        {
+            if (Input.GetMouseButtonDown(0) && uiClickedSegment)
+            {
+                uiClickedSegment = false;
+
+                if (_selectedSegmentIdx != 0) {
+                    parkingSegment = _selectedSegmentIdx;
+                    var segment = Singleton<NetManager>.instance.m_segments.m_buffer[_selectedSegmentIdx];
+                    var info = segment.Info;
+                    Debug.Log("net info index " + segment.m_infoIndex);
+                    NetInfo toggleInfo = null;
+                    if (!noParkingNetInfoMap.TryGetValue(info, out toggleInfo)) {
+                        //toggleInfo = cloneNetInfo(info);
+                        toggleInfo = CreateNoParkingNetInfo();
+
+                        toggleInfo.m_hasParkingSpaces = !info.m_hasParkingSpaces;
+                        for (int i = 0, j = toggleInfo.m_lanes.Length / 2; i < toggleInfo.m_lanes.Length; i++)
+                        {
+                            var toggled = false;
+                            if (i == j || i == j - 1) {
+                                toggleInfo.m_lanes[i].m_laneType ^= NetInfo.LaneType.Parking;
+                                toggled = true;
+                            }
+                            Debug.Log("lane " + i + " parking = " + ((toggleInfo.m_lanes[i].m_laneType & NetInfo.LaneType.Parking) == NetInfo.LaneType.Parking) + " - toggled = " + toggled);
+                        }
+                        noParkingNetInfoMap.Add(info, toggleInfo);
+                        noParkingNetInfoMap.Add(toggleInfo, info);
+                    }
+                    segment.Info = toggleInfo;
+                    Bounds bounds = segment.m_bounds;
+                    Vector3 min = bounds.min;
+                    Vector3 max = bounds.max;
+                    Singleton<VehicleManager>.instance.UpdateParkedVehicles(min.x, min.z, max.x, max.z);
+    /*
+
+                    info.m_hasParkingSpaces = !info.m_hasParkingSpaces;
+                    // only toggle outside lanes (middle lanes should never have parking toggled on)
+                    Debug.Log("segment = " + _selectedSegmentIdx + " set to " + info.m_hasParkingSpaces);
+                    for (int i = 0, j = info.m_lanes.Length / 2; i < info.m_lanes.Length; i++)
+                    {
+                        var toggled = false;
+                        if (i == j || i == j - 1) {
+                            info.m_lanes[i].m_laneType ^= NetInfo.LaneType.Parking;
+                            toggled = true;
+                        }
+                        Debug.Log("lane " + i + " parking = " + ((info.m_lanes[i].m_laneType & NetInfo.LaneType.Parking) == NetInfo.LaneType.Parking) + " - toggled = " + toggled);
+                    }
+                    Bounds bounds = segment.m_bounds;
+                    Vector3 min = bounds.min;
+                    Vector3 max = bounds.max;
+                    Singleton<VehicleManager>.instance.UpdateParkedVehicles(min.x, min.z, max.x, max.z);
+                    */
+                }
             }
         }
 

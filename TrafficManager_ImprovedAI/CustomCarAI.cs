@@ -1056,6 +1056,7 @@ namespace TrafficManager_ImprovedAI
         }
     }
 
+/*
     public class CustomPassengerCarAI : CarAI
     {
         public override void SimulationStep(ushort vehicleID, ref Vehicle data, Vector3 physicsLodRefPos)
@@ -1085,6 +1086,7 @@ namespace TrafficManager_ImprovedAI
             }
         }
     }
+*/
 
     public class CustomCargoTruckAI : CarAI
     {

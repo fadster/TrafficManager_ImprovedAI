@@ -145,7 +145,7 @@ namespace TrafficManager_ImprovedAI
 			{
 				ReplacePathManager();
 				CustomCarAI.RedirectCalls(m_redirectionStates);
-                CustomPassengerCarAI.RedirectCalls(m_redirectionStates);
+                //CustomPassengerCarAI.RedirectCalls(m_redirectionStates);
                 CustomCargoTruckAI.RedirectCalls(m_redirectionStates);
 
                 if (Instance == null)
@@ -194,7 +194,41 @@ namespace TrafficManager_ImprovedAI
 			// Destroy in 10 seconds to give time to all references to update to the new manager without crashing
 			GameObject.Destroy(originalPathManager, 10f);
 		}
-			
+
+        T TryGetComponent<T>(string name)
+        {
+            string[] sm_collectionPrefixes = new string[] { "", "Europe " };
+
+            foreach (string prefix in sm_collectionPrefixes)
+            {
+                GameObject go = GameObject.Find(prefix + name);
+                if (go != null)
+                    return go.GetComponent<T>();
+            }
+
+            return default(T);
+        }
+
+        void ReplacePassengerCarAI()
+        {
+            VehicleCollection collection = TryGetComponent<VehicleCollection>("Residential Low");
+            VehicleInfo info = collection.m_prefabs[0];
+            PassengerCarAI originalAI = (PassengerCarAI) info.GetComponent<VehicleAI>();
+            CustomPassengerCarAI newAI = info.gameObject.AddComponent<CustomPassengerCarAI>();
+            CopyVehicleAIAttributes<CustomPassengerCarAI>(originalAI, newAI);
+            //m_replacedAIs[vehicle.name] = originalAI;
+            info.m_vehicleAI = newAI;
+            newAI.m_info = info;
+        }
+
+        void CopyVehicleAIAttributes<T>(VehicleAI from, T to)
+        {
+            foreach (FieldInfo fi in typeof(T).BaseType.GetFields())
+            {
+                fi.SetValue(to, fi.GetValue(from));
+            }
+        }
+
 		public void SetToolMode(TrafficManagerMode mode)
 		{
 			if (mode == ToolMode) return;
