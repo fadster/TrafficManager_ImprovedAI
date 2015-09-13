@@ -48,28 +48,34 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModBase.cs" />
-    <Compile Include="CustomCarAI.cs" />
-    <Compile Include="CustomPathFind.cs" />
-    <Compile Include="CustomPathManager.cs" />
-    <Compile Include="RedirectionHelper.cs" />
-    <Compile Include="TypeExtensions.cs" />
-    <Compile Include="TrafficPriority.cs" />
-    <Compile Include="TrafficLightTool.cs" />
-    <Compile Include="CustomRoadAI.cs" />
-    <Compile Include="TrafficLightsManual.cs" />
-    <Compile Include="TrafficLightsTimed.cs" />
-    <Compile Include="UIBase.cs" />
-    <Compile Include="UITimedLights.cs" />
-    <Compile Include="UITrafficManager.cs" />
-    <Compile Include="TrafficLightSimulation.cs" />
-    <Compile Include="TrafficRoadRestrictions.cs" />
-    <Compile Include="CustomHumanAI.cs" />
     <Compile Include="SerializableDataExtension.cs" />
-    <Compile Include="AIPanel.cs" />
-    <Compile Include="UISliderInput.cs" />
-    <Compile Include="UITitlePanel.cs" />
-    <Compile Include="UILabelledBox.cs" />
-    <Compile Include="MD5HashGenerator.cs" />
+    <Compile Include="PathFinding\CustomPathManager.cs" />
+    <Compile Include="PathFinding\CustomPathFind.cs" />
+    <Compile Include="AI\CustomCarAI.cs" />
+    <Compile Include="AI\CustomHumanAI.cs" />
+    <Compile Include="AI\CustomRoadAI.cs" />
+    <Compile Include="UI\UIBase.cs" />
+    <Compile Include="UI\ImprovedAI\AIPanel.cs" />
+    <Compile Include="UI\ImprovedAI\UILabelledBox.cs" />
+    <Compile Include="UI\ImprovedAI\UISliderInput.cs" />
+    <Compile Include="UI\ImprovedAI\UITitlePanel.cs" />
+    <Compile Include="UI\TrafficManager\UITrafficManager.cs" />
+    <Compile Include="UI\TrafficManager\UITimedLights.cs" />
+    <Compile Include="Utils\MD5HashGenerator.cs" />
+    <Compile Include="Utils\RedirectionHelper.cs" />
+    <Compile Include="Utils\TypeExtensions.cs" />
+    <Compile Include="TrafficManager\TrafficLightSimulation.cs" />
+    <Compile Include="TrafficManager\TrafficLightsManual.cs" />
+    <Compile Include="TrafficManager\TrafficLightsTimed.cs" />
+    <Compile Include="TrafficManager\TrafficPriority.cs" />
+    <Compile Include="TrafficManager\TrafficRoadRestrictions.cs" />
+    <Compile Include="Tools\TrafficLightTool.cs" />
+    <Compile Include="CSL-Traffic\RoadManager.cs" />
+    <Compile Include="Tools\RoadCustomizerTool.cs" />
+    <Compile Include="UI\CSL-Traffic\UIUtils.cs" />
+    <Compile Include="UI\CSL-Traffic\RoadCustomizerPanel.cs" />
+    <Compile Include="UI\CSL-Traffic\RoadCustomizerGroupPanel.cs" />
+    <Compile Include="CSL-Traffic\FileManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\light_1_1.png" />
@@ -105,4 +111,16 @@
     <EmbeddedResource Include="Resources\sign_yield.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="PathFinding\" />
+    <Folder Include="AI\" />
+    <Folder Include="UI\" />
+    <Folder Include="UI\ImprovedAI\" />
+    <Folder Include="UI\TrafficManager\" />
+    <Folder Include="Utils\" />
+    <Folder Include="TrafficManager\" />
+    <Folder Include="Tools\" />
+    <Folder Include="CSL-Traffic\" />
+    <Folder Include="UI\CSL-Traffic\" />
+  </ItemGroup>
 </Project>
