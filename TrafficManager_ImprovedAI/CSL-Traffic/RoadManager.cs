@@ -129,7 +129,7 @@ namespace CSL_Traffic
 
             public uint m_laneId;
             public ushort m_nodeId;
-            private List<uint> m_laneConnections = new List<uint>();
+            public List<uint> m_laneConnections = new List<uint>();
             public VehicleType m_vehicleTypes = VehicleType.All;
             public float m_speed = 1f;            
 
@@ -150,6 +150,10 @@ namespace CSL_Traffic
                 {
                     Monitor.Exit(this.m_laneConnections);
                 }
+
+                NetManager.instance.m_lanes.m_buffer[m_laneId].m_flags |= CONTROL_BIT;
+                NetManager.instance.m_lanes.m_buffer[m_laneId].m_flags =
+                    (ushort)(NetManager.instance.m_lanes.m_buffer[m_laneId].m_flags & ~TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT);
 
                 if (exists)
                     return false;
@@ -174,8 +178,14 @@ namespace CSL_Traffic
                     Monitor.Exit(this.m_laneConnections);
                 }
 
-                if (result)
-                    UpdateArrows();
+                if (result) {
+                    if ((NetManager.instance.m_lanes.m_buffer[m_laneId].m_flags & TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT) != TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT) {
+                        UpdateArrows();
+                    }
+                    if (this.ConnectionCount() == 0) {
+                        NetManager.instance.m_lanes.m_buffer[m_laneId].m_flags = (ushort)(NetManager.instance.m_lanes.m_buffer[m_laneId].m_flags & ~CONTROL_BIT);
+                    }
+                }
 
                 return result;
             }
@@ -216,6 +226,11 @@ namespace CSL_Traffic
 
             public bool ConnectsTo(uint laneId)
             {
+                /*
+                if ((NetManager.instance.m_lanes.m_buffer[laneId].m_flags & TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT) != TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT)) {
+                    VerifyConnections();
+                }
+                */
                 VerifyConnections();
 
                 bool result = true;
@@ -266,7 +281,10 @@ namespace CSL_Traffic
 
                 if (ConnectionCount() == 0)
                 {
-                    SetDefaultArrows(lane.m_segment, ref NetManager.instance.m_segments.m_buffer[lane.m_segment]);
+                    if ((lane.m_flags & TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT) != TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT)
+                    {
+                        SetDefaultArrows(lane.m_segment, ref NetManager.instance.m_segments.m_buffer[lane.m_segment]);
+                    }
                     return;
                 }
 
@@ -341,7 +359,51 @@ namespace CSL_Traffic
             }
         }
 
-        static Lane[] sm_lanes = new Lane[NetManager.MAX_LANE_COUNT];
+        public static Lane[] sm_lanes = new Lane[NetManager.MAX_LANE_COUNT];
+
+        public static void Initialize()
+        {
+            try 
+            {
+                FastList<ushort> nodesList = new FastList<ushort>();
+                foreach (Lane lane in RoadManager.sm_lanes)
+                {
+                    if (lane == null)
+                        continue;
+
+                    lane.UpdateArrows();
+                    if (lane.ConnectionCount() > 0)
+                        nodesList.Add(lane.m_nodeId);
+
+                    if (lane.m_speed == 0)
+                    {
+                        NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[lane.m_laneId].m_segment];
+                        NetInfo info = segment.Info;
+                        uint l = segment.m_lanes;
+                        int n = 0;
+                        while (l != lane.m_laneId && n < info.m_lanes.Length)
+                        {
+                            l = NetManager.instance.m_lanes.m_buffer[l].m_nextLane;
+                            n++;
+                        }
+
+                        if (n < info.m_lanes.Length)
+                            lane.m_speed = info.m_lanes[n].m_speedLimit;
+                    }
+
+                }
+
+                RoadCustomizerTool customizerTool = ToolsModifierControl.GetTool<RoadCustomizerTool>();
+                foreach (ushort nodeId in nodesList)
+                    customizerTool.SetNodeMarkers(nodeId);
+
+                Debug.Log("Finished loading road data. Time: " + Time.realtimeSinceStartup);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Unexpected " + e.GetType().Name + " loading road data.");
+            }
+        }
 
         public static Lane CreateLane(uint laneId)
         {
@@ -405,11 +467,51 @@ namespace CSL_Traffic
             return lane.RemoveConnection(connectionId);
         }
 
+        public static bool ClearLaneConnections(uint laneId)
+        {
+            bool result = true;
+
+            foreach (uint connectionId in GetLaneConnections(laneId))
+            {
+                result &= RemoveLaneConnection(laneId, connectionId);   
+            }
+
+            return result;
+        }
+
         public static uint[] GetLaneConnections(uint laneId)
         {
             Lane lane = GetLane(laneId);
 
             return lane.GetConnectionsAsArray();
+        }
+
+        public static bool CheckLaneConnection(uint lane1, uint lane2, ushort nodeID)
+        {
+            if ((NetManager.instance.m_lanes.m_buffer[lane1].m_flags & Lane.CONTROL_BIT) == Lane.CONTROL_BIT) {
+                var lane = GetLane(lane1);
+                if (lane != null && lane.ConnectionCount() > 0) {
+                    return CheckLaneConnection(lane1, lane2);
+                }
+            }
+
+            ushort seg1 = NetManager.instance.m_lanes.m_buffer[lane1].m_segment;
+            ushort seg2 = NetManager.instance.m_lanes.m_buffer[lane2].m_segment;
+            Vector3 dir1 = NetManager.instance.m_segments.m_buffer[seg1].GetDirection(nodeID);
+            Vector3 dir2 = NetManager.instance.m_segments.m_buffer[seg2].GetDirection(nodeID);
+            NetLane.Flags flags = (NetLane.Flags) NetManager.instance.m_lanes.m_buffer[lane1].m_flags;
+
+            if ((flags & NetLane.Flags.LeftForwardRight) == 0 || seg1 == seg2) {
+                return true;
+            } else if (Vector3.Angle(dir1, dir2) > 150f) {
+                return (flags & NetLane.Flags.Forward) == NetLane.Flags.Forward;
+            } else {
+                if (Vector3.Dot(Vector3.Cross(dir1, -dir2), Vector3.up) > 0f) {
+                    return (flags & NetLane.Flags.Right) == NetLane.Flags.Right;
+                } else {
+                    return (flags & NetLane.Flags.Left) == NetLane.Flags.Left;
+                }
+            }
         }
 
         public static bool CheckLaneConnection(uint from, uint to)

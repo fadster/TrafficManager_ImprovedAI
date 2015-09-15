@@ -15,6 +15,7 @@ namespace TrafficManager_ImprovedAI
     {
         public static string dataID = "TrafficManager_v0.9";
         public static UInt32 uniqueID;
+        public const ushort CONTROL_BIT = 4096;
 
         public static ISerializableData SerializableData;
 
@@ -225,6 +226,7 @@ namespace TrafficManager_ImprovedAI
                     //segment.Info.m_netAI.UpdateLanes(segmentId, ref segment, false);
 
                     Singleton<NetManager>.instance.m_lanes.m_buffer[laneId].m_flags = Convert.ToUInt16(split[1]);
+                    Singleton<NetManager>.instance.m_lanes.m_buffer[laneId].m_flags |= CONTROL_BIT;
                 }
             } catch {
                 // Empty config, ignore exception.
@@ -238,6 +240,9 @@ namespace TrafficManager_ImprovedAI
                 Debug.Log("using default AI values");
                 CustomPathFind.ResetAIParameters();
             }
+
+            CSL_Traffic.RoadManager.sm_lanes = configuration.laneMarkers;
+            CSL_Traffic.RoadManager.Initialize();
         }
 
         public void OnSaveData()
@@ -410,6 +415,8 @@ namespace TrafficManager_ImprovedAI
             configuration.aiConfig.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
             configuration.aiConfig.obeyTMLaneFlags = CustomPathFind.obeyTMLaneFlags;
 
+            configuration.laneMarkers = CSL_Traffic.RoadManager.sm_lanes;
+
             Configuration.Serialize(filepath, configuration);
         }
     }
@@ -439,6 +446,7 @@ namespace TrafficManager_ImprovedAI
         public List<int[]> timedNodeStepSegments = new List<int[]>();
 
         public ImprovedAIConfig aiConfig = new ImprovedAIConfig();
+        public CSL_Traffic.RoadManager.Lane[] laneMarkers = new CSL_Traffic.RoadManager.Lane[NetManager.MAX_LANE_COUNT];
 
         public string[] md5Sums = new string[11];
 

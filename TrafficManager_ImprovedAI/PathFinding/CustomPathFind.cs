@@ -1007,7 +1007,7 @@ namespace TrafficManager_ImprovedAI
             while (num12 < num && num2 != 0u)
             {
                 NetInfo.Lane lane2 = info.m_lanes[num12];
-                if ((byte)(lane2.m_finalDirection & direction2) != 0 && (!m_obeyTMLanes || CheckLaneConnection(num2, item.m_laneID, targetNode)))
+                if ((byte)(lane2.m_finalDirection & direction2) != 0 && (!m_obeyTMLanes || CSL_Traffic.RoadManager.CheckLaneConnection(num2, item.m_laneID, targetNode)))
                 {
                     if (lane2.CheckType(laneType2, vehicleType2) && (segmentID != item.m_position.m_segment || num12 != (int)item.m_position.m_lane) && (byte)(lane2.m_finalDirection & direction2) != 0)
                     {

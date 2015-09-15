@@ -2950,6 +2950,11 @@ namespace TrafficManager_ImprovedAI
             {
                 Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags = (ushort)(flags | flag);
             }
+            Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags |= SerializableDataExtension.CONTROL_BIT;
+            //Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags = (ushort) (Singleton<NetManager>.instance.m_lanes.m_buffer[laneID].m_flags & ~CSL_Traffic.RoadManager.Lane.CONTROL_BIT);
+
+            CSL_Traffic.RoadManager.ClearLaneConnections(laneID);
+
 			/*
 			NetLane lane = Singleton<NetManager>.instance.m_lanes.m_buffer [laneID];
 			ushort segmentId = lane.m_segment;
