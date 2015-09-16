@@ -171,6 +171,7 @@ namespace TrafficManager_ImprovedAI
 			TrafficLightsManual.ManualSegments.Clear();
 			TrafficLightsTimed.timedScripts.Clear();
 			LoadingExtension.Instance.nodeSimulationLoaded = false;
+            ToolsModifierControl.SetTool<DefaultTool>();
 		}
 
 		void ReplacePathManager()

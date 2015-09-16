@@ -469,11 +469,17 @@ namespace CSL_Traffic
 
         public static bool ClearLaneConnections(uint laneId)
         {
-            bool result = true;
+            bool result = false;
+            Lane lane = GetLane(laneId);
 
-            foreach (uint connectionId in GetLaneConnections(laneId))
+            if (lane != null)
             {
-                result &= RemoveLaneConnection(laneId, connectionId);   
+                result = true;
+                foreach (uint connectionId in GetLaneConnections(laneId))
+                {
+                    result &= lane.RemoveConnection(connectionId);
+                }
+                ToolsModifierControl.GetTool<RoadCustomizerTool>().SetNodeMarkers(lane.m_nodeId, true);
             }
 
             return result;

@@ -38,3 +38,9 @@ Thumbs.db
 
 #dotCover
 *.dotCover
+Test/Program.cs
+Test/Properties/AssemblyInfo.cs
+Test/Test.csproj
+TrafficManager_ImprovedAI/clone prefab.txt
+TrafficManager_ImprovedAI.sln
+TrafficManager_ImprovedAI/TrafficManager_ImprovedAI.csproj
