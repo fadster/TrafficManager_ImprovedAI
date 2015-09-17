@@ -241,6 +241,11 @@ namespace TrafficManager_ImprovedAI
         {
             toolMode = mode;
 
+            if (ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool) {
+                ToolsModifierControl.toolController.CurrentTool = LoadingExtension.Instance.TrafficLightTool;
+                ToolsModifierControl.SetTool<TrafficLightTool>();
+            }
+
             if (mode != ToolMode.ManualSwitch)
             {
                 DisableManual();

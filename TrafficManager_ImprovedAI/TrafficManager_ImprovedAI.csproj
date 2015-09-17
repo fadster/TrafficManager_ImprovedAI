@@ -72,10 +72,6 @@
     <Compile Include="Tools\TrafficLightTool.cs" />
     <Compile Include="CSL-Traffic\RoadManager.cs" />
     <Compile Include="Tools\RoadCustomizerTool.cs" />
-    <Compile Include="UI\CSL-Traffic\UIUtils.cs" />
-    <Compile Include="UI\CSL-Traffic\RoadCustomizerPanel.cs" />
-    <Compile Include="UI\CSL-Traffic\RoadCustomizerGroupPanel.cs" />
-    <Compile Include="CSL-Traffic\FileManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\light_1_1.png" />
@@ -122,5 +118,11 @@
     <Folder Include="Tools\" />
     <Folder Include="CSL-Traffic\" />
     <Folder Include="UI\CSL-Traffic\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UI\CSL-Traffic\RoadCustomizerPanel.cs" />
+    <None Include="UI\CSL-Traffic\RoadCustomizerGroupPanel.cs" />
+    <None Include="UI\CSL-Traffic\UIUtils.cs" />
+    <None Include="CSL-Traffic\FileManager.cs" />
   </ItemGroup>
 </Project>

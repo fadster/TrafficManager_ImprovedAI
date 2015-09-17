@@ -40,7 +40,7 @@ namespace TrafficManager_ImprovedAI
             button.playAudioEvents = true;
 
             // Place the button.
-            button.relativePosition = new Vector3(160f, 20f);
+            button.relativePosition = new Vector3(180f, 20f);
 
             // Respond to button click.
             button.eventClick += TMClick;
@@ -64,7 +64,7 @@ namespace TrafficManager_ImprovedAI
             button.playAudioEvents = true;
 
             // Place the button.
-            button.relativePosition = new Vector3(220f, 20f);
+            button.relativePosition = new Vector3(240f, 20f);
 
             // Respond to button click.
             button.eventClick += AIClick;

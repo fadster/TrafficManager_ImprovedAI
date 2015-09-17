@@ -1,6 +1,6 @@
 ﻿using ColossalFramework.Math;
 using ColossalFramework.UI;
-using CSL_Traffic.UI;
+//using CSL_Traffic.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace CSL_Traffic
 			public Color m_color;
 			public FastList<NodeLaneMarker> m_connections = new FastList<NodeLaneMarker>();
 		}
-
+        /*
 		class SegmentLaneMarker
 		{
 			public uint m_lane;
@@ -87,17 +87,17 @@ namespace CSL_Traffic
 			public ushort m_segmentId;
 			public ushort m_targetNode;
 		}
-
+*/
 		ushort m_hoveredSegment;
 		ushort m_hoveredNode;
 		ushort m_selectedNode;        
 		NodeLaneMarker m_selectedMarker;
 		Dictionary<ushort, FastList<NodeLaneMarker>> m_nodeMarkers = new Dictionary<ushort, FastList<NodeLaneMarker>>();
-		Dictionary<ushort, Segment> m_segments = new Dictionary<ushort, Segment>();
-		Dictionary<int, FastList<SegmentLaneMarker>> m_hoveredLaneMarkers = new Dictionary<int, FastList<SegmentLaneMarker>>();
-		List<SegmentLaneMarker> m_selectedLaneMarkers = new List<SegmentLaneMarker>();
-		int m_hoveredLanes;
-		UIButton m_toolButton;
+//		Dictionary<ushort, Segment> m_segments = new Dictionary<ushort, Segment>();
+//		Dictionary<int, FastList<SegmentLaneMarker>> m_hoveredLaneMarkers = new Dictionary<int, FastList<SegmentLaneMarker>>();
+//		List<SegmentLaneMarker> m_selectedLaneMarkers = new List<SegmentLaneMarker>();
+//		int m_hoveredLanes;
+//		UIButton m_toolButton;
 
 		protected override void OnToolUpdate()
 		{
@@ -116,14 +116,15 @@ namespace CSL_Traffic
 				HandleIntersectionRouting();
 				return;
 			}
-
+            /*
 			if (m_hoveredSegment != 0)
 			{
 				HandleLaneCustomization();
 			}
-
+            */
 			if (!RayCastSegmentAndNode(out m_hoveredSegment, out m_hoveredNode))
 			{
+                /*
 				// clear lanes
 				if (Input.GetMouseButtonUp(1))
 				{
@@ -134,10 +135,11 @@ namespace CSL_Traffic
 					
 				m_segments.Clear();
 				m_hoveredLaneMarkers.Clear();
+                */
 				return;
 			}
 				
-
+            /*
 			if (m_hoveredSegment != 0)
 			{
 				NetSegment segment = NetManager.instance.m_segments.m_buffer[m_hoveredSegment];
@@ -188,16 +190,18 @@ namespace CSL_Traffic
 				}
 						
 			}
-			else if (m_hoveredNode != 0 && NetManager.instance.m_nodes.m_buffer[m_hoveredNode].CountSegments() < 2)
+   */         
+			if (m_hoveredNode != 0 && NetManager.instance.m_nodes.m_buffer[m_hoveredNode].CountSegments() < 2)
 			{
 				m_hoveredNode = 0;
 			}
-
+/*
 			if (m_hoveredSegment == 0)
 			{
 				m_segments.Clear();
 				m_hoveredLaneMarkers.Clear();
 			}
+   */         
 
 			if (Input.GetMouseButtonUp(0))
 			{
@@ -259,7 +263,7 @@ namespace CSL_Traffic
 					m_selectedNode = 0;
 			}
 		}
-
+/*
 		void HandleLaneCustomization()
 		{
 			// Handle lane settings
@@ -312,7 +316,7 @@ namespace CSL_Traffic
 					OnEndLaneCustomization();
 			}
 		}
-
+*/
 		float time = 0;
 		protected override void OnEnable()
 		{
@@ -326,13 +330,16 @@ namespace CSL_Traffic
 			}
 
 			m_hoveredNode = m_hoveredSegment = 0;
+//            m_hoveredNode = 0;
 			m_selectedNode = 0;
 			m_selectedMarker = null;
-			m_selectedLaneMarkers.Clear();
-			m_segments.Clear();
-			m_hoveredLaneMarkers.Clear();
+//			m_selectedLaneMarkers.Clear();
+//			m_segments.Clear();
+//			m_hoveredLaneMarkers.Clear();
+            /*
 			if (OnEndLaneCustomization != null)
 				OnEndLaneCustomization();
+    */            
 		}
 
 		protected override void OnDisable()
@@ -445,7 +452,7 @@ namespace CSL_Traffic
 				}
 			}
 		}
-
+/*
 		void SetLaneMarkers()
 		{
 			m_hoveredLaneMarkers.Clear();
@@ -549,7 +556,7 @@ namespace CSL_Traffic
 			if (node.CountSegments() == 2)
 				SetSegments(node.m_segment0 == segmentId ? node.m_segment1 : node.m_segment0, infoIndex, ref seg);
 		}
-
+*/
 		public override void RenderOverlay(RenderManager.CameraInfo cameraInfo)
 		{
 			base.RenderOverlay(cameraInfo);
@@ -584,6 +591,7 @@ namespace CSL_Traffic
 					}
 				}
 			}
+            /*
 			else
 			{
 				foreach (KeyValuePair<int, FastList<SegmentLaneMarker>> keyValuePair in m_hoveredLaneMarkers)
@@ -605,7 +613,7 @@ namespace CSL_Traffic
 					RenderManager.instance.OverlayEffect.DrawBezier(cameraInfo, new Color(0f, 1f, 0f, 0.75f), marker.m_bezier, 2f, 0, 0, -1f, 1280f, false, false);
 				}
 			}
-
+*/
 			foreach (ushort node in m_nodeMarkers.Keys)
 			{
 				if (node == m_selectedNode || (NetManager.instance.m_nodes.m_buffer[node].m_flags & CUSTOMIZED_NODE_FLAG) != CUSTOMIZED_NODE_FLAG)
@@ -739,7 +747,7 @@ namespace CSL_Traffic
 		}
 
 		#region Road Customizer
-
+/*
 		public event System.Action OnStartLaneCustomization;
 		public event System.Action OnEndLaneCustomization;
 
@@ -948,13 +956,13 @@ namespace CSL_Traffic
 			//    }
 			//}
 		}
-
+*/
 		protected override void Awake()
 		{
 			base.Awake();
 			//StartCoroutine(CreateToolButton());
 		}
-
+/*
 		IEnumerator CreateToolButton()
 		{
 			while (m_toolButton == null)
@@ -1040,7 +1048,7 @@ namespace CSL_Traffic
 
 			ToolsModifierControl.SetTool<RoadCustomizerTool>();
 		}
-
+*/
 		#endregion
 
 		static readonly Color32[] colors = new Color32[]

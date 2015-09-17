@@ -39,13 +39,16 @@ namespace TrafficManager_ImprovedAI
                 CSL_Traffic.RoadManager.Initialize();
                 LoadingExtension.roadManagerInitialized = true;
             }
-
+            /*
 			if (LoadingExtension.Instance.ToolMode != TrafficManagerMode.None && ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool)
 			{
 				LoadingExtension.Instance.UI.HideTMPanel();
 			}
-
-			if (ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool && LoadingExtension.Instance.UI.isVisible())
+            */
+            if (LoadingExtension.Instance.ToolMode != TrafficManagerMode.None &&
+                ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool &&
+                ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.RoadCustomizerTool &&
+                LoadingExtension.Instance.UI.isVisible())
 			{
 				LoadingExtension.Instance.UI.HideTMPanel();
 			}
@@ -118,6 +121,8 @@ namespace TrafficManager_ImprovedAI
 
 		public TrafficLightTool TrafficLightTool = null;
 
+        public CSL_Traffic.RoadCustomizerTool RoadCustomizerTool = null;
+
 		public UIBase UI;
 
 		public bool detourInited = false;
@@ -162,8 +167,8 @@ namespace TrafficManager_ImprovedAI
 					
 				UI = ToolsModifierControl.toolController.gameObject.AddComponent<UIBase>();
 				TrafficPriority.leftHandDrive = Singleton<SimulationManager>.instance.m_metaData.m_invertTraffic == SimulationMetaData.MetaBool.True;
-                AddTool<CSL_Traffic.RoadCustomizerTool>(ToolsModifierControl.toolController);
-                //ToolsModifierControl.SetTool<DefaultTool>();
+                RoadCustomizerTool = AddTool<CSL_Traffic.RoadCustomizerTool>(ToolsModifierControl.toolController);
+                ToolsModifierControl.SetTool<DefaultTool>();
 			}				
 		}
 
@@ -252,12 +257,12 @@ namespace TrafficManager_ImprovedAI
 			}
 		}
 
-        private void AddTool<T>(ToolController toolController) where T : ToolBase
+        private T AddTool<T>(ToolController toolController) where T : ToolBase
         {
             if (toolController.GetComponent<T>() != null)
-                return;
+                return null;
 
-            toolController.gameObject.AddComponent<T>();
+            var tool = toolController.gameObject.AddComponent<T>();
 
             // contributed by Japa
             FieldInfo toolControllerField = typeof(ToolController).GetField("m_tools", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -266,6 +271,8 @@ namespace TrafficManager_ImprovedAI
             FieldInfo toolModifierDictionary = typeof(ToolsModifierControl).GetField("m_Tools", BindingFlags.Static | BindingFlags.NonPublic);
             if (toolModifierDictionary != null)
                 toolModifierDictionary.SetValue(null, null); // to force a refresh
+
+            return tool;
         }
     }
 }

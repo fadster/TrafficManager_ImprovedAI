@@ -190,8 +190,10 @@ namespace TrafficManager_ImprovedAI
         private void clickChangeLanes(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) {
-                LoadingExtension.Instance.SetToolMode(TrafficManagerMode.None);
-                //TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
+                buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
+                LoadingExtension.Instance.SetToolMode(TrafficManagerMode.TrafficLight);
+                TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
+                ToolsModifierControl.toolController.CurrentTool = LoadingExtension.Instance.RoadCustomizerTool;
                 ToolsModifierControl.SetTool<CSL_Traffic.RoadCustomizerTool>();
             } else {
                 if (_uistate != UIState.LaneChange) {
