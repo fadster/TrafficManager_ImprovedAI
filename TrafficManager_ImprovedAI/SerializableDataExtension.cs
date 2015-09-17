@@ -485,7 +485,8 @@ namespace TrafficManager_ImprovedAI
                 s += "timed node step segments: " + timedNodeStepSegments.Count + "\n";
                 s += "traffic lights: " + nodeTrafficLights.Length + "\n";
                 s += "crosswalks: " + nodeCrosswalk.Length + "\n";
-                s += "lane flags: " + laneFlags.TrimEnd(',').Split(',').Length + "\n\n";
+                s += "lane flags: " + laneFlags.TrimEnd(',').Split(',').Length + "\n";
+                s += "lane markers (T++): " + laneMarkers.Count + "\n\n";
 
                 s += "Improved AI\n";
                 s += "-----------\n";

@@ -18,6 +18,7 @@ namespace TrafficManager_ImprovedAI
             TimedControlNodes,
             TimedControlLights,
             LaneChange,
+            LaneChangeAlt,
             LaneRestrictions,
             Crosswalk
         }
@@ -190,11 +191,18 @@ namespace TrafficManager_ImprovedAI
         private void clickChangeLanes(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) {
-                buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
-                LoadingExtension.Instance.SetToolMode(TrafficManagerMode.TrafficLight);
-                //TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
-                ToolsModifierControl.toolController.CurrentTool = LoadingExtension.Instance.RoadCustomizerTool;
-                ToolsModifierControl.SetTool<CSL_Traffic.RoadCustomizerTool>();
+                if (_uistate != UIState.LaneChangeAlt) {
+                    _uistate = UIState.LaneChangeAlt;
+                    buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
+                    //LoadingExtension.Instance.SetToolMode(TrafficManagerMode.TrafficLight);
+                    TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
+                    ToolsModifierControl.toolController.CurrentTool = LoadingExtension.Instance.RoadCustomizerTool;
+                    ToolsModifierControl.SetTool<CSL_Traffic.RoadCustomizerTool>();
+                } else {
+                    _uistate = UIState.None;
+                    buttonLaneChange.focusedBgSprite = "ButtonMenu";
+                    TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
+                }
             } else {
                 if (_uistate != UIState.LaneChange) {
                     _uistate = UIState.LaneChange;

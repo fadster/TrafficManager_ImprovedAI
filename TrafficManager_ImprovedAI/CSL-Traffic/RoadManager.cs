@@ -11,117 +11,6 @@ namespace CSL_Traffic
 {
     public static class RoadManager
     {
-        /*
-        public class Data : SerializableDataExtensionBase
-        {
-            const string LANE_DATA_ID = "Traffic++_RoadManager_Lanes";
-            
-            public override void OnLoadData()
-            {
-                Debug.Log("Loading road data. Time: " + Time.realtimeSinceStartup);
-                byte[] data = serializableDataManager.LoadData(LANE_DATA_ID);
-                if (data == null)
-                {
-                    Debug.Log("No road data to load.");
-                    return;
-                }
-
-                MemoryStream memStream = new MemoryStream();
-                memStream.Write(data, 0, data.Length);
-                memStream.Position = 0;
-
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                try
-                {
-                    RoadManager.sm_lanes = (Lane[]) binaryFormatter.Deserialize(memStream);
-                    
-                    FastList<ushort> nodesList = new FastList<ushort>();
-                    foreach (Lane lane in RoadManager.sm_lanes)
-                    {
-                        if (lane == null)
-                            continue;
-
-                        lane.UpdateArrows();
-                        if (lane.ConnectionCount() > 0)
-                            nodesList.Add(lane.m_nodeId);
-
-                        if (lane.m_speed == 0)
-                        {
-                            NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[lane.m_laneId].m_segment];
-                            NetInfo info = segment.Info;
-                            uint l = segment.m_lanes;
-                            int n = 0;
-                            while (l != lane.m_laneId && n < info.m_lanes.Length)
-                            {
-                                l = NetManager.instance.m_lanes.m_buffer[l].m_nextLane;
-                                n++;
-                            }
-
-                            if (n < info.m_lanes.Length)
-                                lane.m_speed = info.m_lanes[n].m_speedLimit;
-                        }
-
-                    }
-
-                    RoadCustomizerTool customizerTool = ToolsModifierControl.GetTool<RoadCustomizerTool>();
-                    foreach (ushort nodeId in nodesList)
-                        customizerTool.SetNodeMarkers(nodeId);
-
-                    Debug.Log("Finished loading road data. Time: " + Time.realtimeSinceStartup);
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("Unexpected " + e.GetType().Name + " loading road data.");
-                }
-                finally
-                {
-                    memStream.Close();
-                }
-            }
-
-            public override void OnSaveData()
-            {
-                Debug.Log("Saving road data!");
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                MemoryStream memStream = new MemoryStream();
-                try
-                {
-                    binaryFormatter.Serialize(memStream, RoadManager.sm_lanes);
-                    serializableDataManager.SaveData(LANE_DATA_ID, memStream.ToArray());
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("Unexpected " + e.GetType().Name + " saving road data.");
-                }
-                finally
-                {
-                    memStream.Close();
-                }
-            }
-        }
-        */
-
-        [Flags]
-        public enum VehicleType
-        {
-            None                = 0,
-
-            Ambulance           = 1,
-            Bus                 = 2,
-            CargoTruck          = 4,
-            FireTruck           = 8,
-            GarbageTruck        = 16,
-            Hearse              = 32,
-            PassengerCar        = 64,
-            PoliceCar           = 128,
-
-            Emergency           = 32768,
-            EmergencyVehicles   = Emergency | Ambulance | FireTruck | PoliceCar,
-            ServiceVehicles     = EmergencyVehicles | Bus | GarbageTruck | Hearse,
-
-            All                 = ServiceVehicles | PassengerCar | CargoTruck
-        }
-
         [Serializable]
         public class Lane
         {
@@ -130,8 +19,8 @@ namespace CSL_Traffic
             public uint m_laneId;
             public ushort m_nodeId;
             public List<uint> m_laneConnections = new List<uint>();
-            public VehicleType m_vehicleTypes = VehicleType.All;
-            public float m_speed = 1f;            
+            //public VehicleType m_vehicleTypes = VehicleType.All;
+            //public float m_speed = 1f;            
 
             public bool AddConnection(uint laneId)
             {
@@ -366,15 +255,17 @@ namespace CSL_Traffic
             try 
             {
                 FastList<ushort> nodesList = new FastList<ushort>();
-                Debug.Log("road manager lanes = " + ((RoadManager.sm_lanes != null) ? RoadManager.sm_lanes.Length + "" : "null"));
+                //Debug.Log("road manager lanes = " + ((RoadManager.sm_lanes != null) ? RoadManager.sm_lanes.Length + "" : "null"));
+                var i = 0;
                 foreach (Lane lane in RoadManager.sm_lanes)
                 {
                     if (lane == null)
                         continue;
 
+                    i++;
                     lane.UpdateArrows();
                     if (lane.ConnectionCount() > 0) {
-                        Debug.Log("adding node " + lane.m_nodeId + " with " + lane.ConnectionCount() + " connections");
+                        //Debug.Log("adding node " + lane.m_nodeId + " with " + lane.ConnectionCount() + " connections");
                         nodesList.Add(lane.m_nodeId);
                     }
 
@@ -398,9 +289,9 @@ namespace CSL_Traffic
 
                 }
 
-                Debug.Log("setting node markers for " + nodesList.m_size + " nodes");
+                Debug.Log("setting node markers for " + nodesList.m_size + " nodes with " + i + " lanes");
                 RoadCustomizerTool customizerTool = ToolsModifierControl.GetTool<RoadCustomizerTool>();
-                Debug.Log("customizerTool = " + customizerTool);
+                //Debug.Log("customizerTool = " + customizerTool);
                 customizerTool.ClearNodeMarkers();
                 foreach (ushort nodeId in nodesList) {
                     customizerTool.SetNodeMarkers(nodeId, true);
@@ -535,43 +426,6 @@ namespace CSL_Traffic
 
             return lane.ConnectsTo(to);
         }
-        #endregion
-
-        #region Vehicle Restrictions
-        public static bool CanUseLane(VehicleType vehicleType, uint laneId)
-        {            
-            return (GetLane(laneId).m_vehicleTypes & vehicleType) != VehicleType.None;
-        }
-
-        public static VehicleType GetVehicleRestrictions(uint laneId)
-        {
-            return GetLane(laneId).m_vehicleTypes;
-        }
-
-        public static void SetVehicleRestrictions(uint laneId, VehicleType vehicleRestrictions)
-        {
-            GetLane(laneId).m_vehicleTypes = vehicleRestrictions;
-        }
-
-        public static void ToggleVehicleRestriction(uint laneId, VehicleType vehicleType)
-        {
-            GetLane(laneId).m_vehicleTypes ^= vehicleType;
-        }
-
-        #endregion
-
-        #region Lane Speeds
-
-        public static float GetLaneSpeed(uint laneId)
-        {
-            return GetLane(laneId).m_speed;
-        }
-
-        public static void SetLaneSpeed(uint laneId, int speed)
-        {
-            GetLane(laneId).m_speed = (float)Math.Round(speed/50f, 2);
-        }
-
         #endregion
     }
 }

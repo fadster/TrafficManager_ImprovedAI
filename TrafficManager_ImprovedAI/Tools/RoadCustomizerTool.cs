@@ -130,6 +130,7 @@ namespace CSL_Traffic
 				return;
 			}
 
+            ToolCursor = null;
 			m_hoveredNode = m_hoveredSegment = 0;
 			m_selectedNode = 0;
 			m_selectedMarker = null;

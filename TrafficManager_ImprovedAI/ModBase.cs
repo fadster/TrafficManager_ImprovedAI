@@ -46,7 +46,7 @@ namespace TrafficManager_ImprovedAI
 			}
             */
             if (LoadingExtension.Instance.ToolMode != TrafficManagerMode.None &&
-            //if (ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool &&
+                ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool &&
                 ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.RoadCustomizerTool &&
                 LoadingExtension.Instance.UI.isVisible())
 			{
@@ -259,18 +259,19 @@ namespace TrafficManager_ImprovedAI
 
         private T AddTool<T>(ToolController toolController) where T : ToolBase
         {
-            if (toolController.GetComponent<T>() != null)
-                return null;
+            var tool = toolController.GetComponent<T>();
 
-            var tool = toolController.gameObject.AddComponent<T>();
+            if (tool == null) {
+                tool = toolController.gameObject.AddComponent<T>();
 
-            // contributed by Japa
-            FieldInfo toolControllerField = typeof(ToolController).GetField("m_tools", BindingFlags.Instance | BindingFlags.NonPublic);
-            if (toolControllerField != null)
-                toolControllerField.SetValue(toolController, toolController.GetComponents<ToolBase>());
-            FieldInfo toolModifierDictionary = typeof(ToolsModifierControl).GetField("m_Tools", BindingFlags.Static | BindingFlags.NonPublic);
-            if (toolModifierDictionary != null)
-                toolModifierDictionary.SetValue(null, null); // to force a refresh
+                // contributed by Japa
+                FieldInfo toolControllerField = typeof(ToolController).GetField("m_tools", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (toolControllerField != null)
+                    toolControllerField.SetValue(toolController, toolController.GetComponents<ToolBase>());
+                FieldInfo toolModifierDictionary = typeof(ToolsModifierControl).GetField("m_Tools", BindingFlags.Static | BindingFlags.NonPublic);
+                if (toolModifierDictionary != null)
+                    toolModifierDictionary.SetValue(null, null); // to force a refresh
+            }
 
             return tool;
         }
