@@ -136,7 +136,7 @@ namespace CSL_Traffic
         public class TextureInfo
         {
             [XmlAttribute]
-            public string name;
+            public string name ="";
 
             // normal
             public string mainTex = "";

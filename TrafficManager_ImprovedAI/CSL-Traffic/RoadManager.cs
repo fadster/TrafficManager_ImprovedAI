@@ -366,15 +366,19 @@ namespace CSL_Traffic
             try 
             {
                 FastList<ushort> nodesList = new FastList<ushort>();
+                Debug.Log("road manager lanes = " + ((RoadManager.sm_lanes != null) ? RoadManager.sm_lanes.Length + "" : "null"));
                 foreach (Lane lane in RoadManager.sm_lanes)
                 {
                     if (lane == null)
                         continue;
 
                     lane.UpdateArrows();
-                    if (lane.ConnectionCount() > 0)
+                    if (lane.ConnectionCount() > 0) {
+                        Debug.Log("adding node " + lane.m_nodeId + " with " + lane.ConnectionCount() + " connections");
                         nodesList.Add(lane.m_nodeId);
+                    }
 
+                    /*
                     if (lane.m_speed == 0)
                     {
                         NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[lane.m_laneId].m_segment];
@@ -390,12 +394,17 @@ namespace CSL_Traffic
                         if (n < info.m_lanes.Length)
                             lane.m_speed = info.m_lanes[n].m_speedLimit;
                     }
+                    */
 
                 }
 
+                Debug.Log("setting node markers for " + nodesList.m_size + " nodes");
                 RoadCustomizerTool customizerTool = ToolsModifierControl.GetTool<RoadCustomizerTool>();
-                foreach (ushort nodeId in nodesList)
-                    customizerTool.SetNodeMarkers(nodeId);
+                Debug.Log("customizerTool = " + customizerTool);
+                customizerTool.ClearNodeMarkers();
+                foreach (ushort nodeId in nodesList) {
+                    customizerTool.SetNodeMarkers(nodeId, true);
+                }
 
                 Debug.Log("Finished loading road data. Time: " + Time.realtimeSinceStartup);
             }

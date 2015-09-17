@@ -355,6 +355,11 @@ namespace CSL_Traffic
 			return true;
 		}
 
+        public void ClearNodeMarkers()
+        {
+            m_nodeMarkers.Clear();
+        }
+
 		public void SetNodeMarkers(ushort nodeId, bool overwrite = false)
 		{
 			if (nodeId == 0)

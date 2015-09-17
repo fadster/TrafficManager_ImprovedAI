@@ -19,6 +19,7 @@ namespace TrafficManager_ImprovedAI
 
         public static ISerializableData SerializableData;
 
+        public static bool configLoaded = false;
         private static Timer _timer;
 
         public void OnCreated(ISerializableData serializableData)
@@ -42,6 +43,7 @@ namespace TrafficManager_ImprovedAI
 
         public void OnLoadData()
         {
+            configLoaded = false;
             byte[] data = SerializableData.LoadData(dataID);
 
             if (data == null) {
@@ -56,6 +58,7 @@ namespace TrafficManager_ImprovedAI
 
         public static void OnLoadDataTimed(System.Object source, ElapsedEventArgs e)
         {
+            _timer.Enabled = false;
             byte[] data = SerializableData.LoadData(dataID);
 
             uniqueID = 0u;
@@ -66,7 +69,6 @@ namespace TrafficManager_ImprovedAI
             }
 
             var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
-            _timer.Enabled = false;
 
             if (!File.Exists(filepath)) {
                 Debug.Log("Traffic manager save file " + filepath + " not found!");
@@ -241,8 +243,22 @@ namespace TrafficManager_ImprovedAI
                 CustomPathFind.ResetAIParameters();
             }
 
-            CSL_Traffic.RoadManager.sm_lanes = configuration.laneMarkers;
-            CSL_Traffic.RoadManager.Initialize();
+            if (configuration.laneDict == null || configuration.laneDict.Count == 0) {
+                //CSL_Traffic.RoadManager.sm_lanes = configuration.laneMarkers;
+                Debug.Log("no lane markers found");
+            } else {
+                Debug.Log("found " + configuration.laneDict.Count + " lane markers");
+                foreach (var lane in configuration.laneDict.ToArray()) {
+                    if (lane != null) {
+                        CSL_Traffic.RoadManager.sm_lanes[lane.m_laneId] = lane;
+                    } else {
+                        Debug.Log("null lane in dict");
+                    }
+                }
+                Debug.Log("loaded lane markers");
+            }
+            //CSL_Traffic.RoadManager.Initialize();
+            configLoaded = true;
         }
 
         public void OnSaveData()
@@ -415,7 +431,14 @@ namespace TrafficManager_ImprovedAI
             configuration.aiConfig.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
             configuration.aiConfig.obeyTMLaneFlags = CustomPathFind.obeyTMLaneFlags;
 
-            configuration.laneMarkers = CSL_Traffic.RoadManager.sm_lanes;
+            //configuration.laneMarkers = CSL_Traffic.RoadManager.sm_lanes;
+
+            for (var i = 0; i < CSL_Traffic.RoadManager.sm_lanes.Length; i++) {
+                var lane = CSL_Traffic.RoadManager.sm_lanes[i];
+                if (lane != null) {
+                    configuration.laneDict.Add(lane);
+                }
+            }
 
             Configuration.Serialize(filepath, configuration);
         }
@@ -446,7 +469,8 @@ namespace TrafficManager_ImprovedAI
         public List<int[]> timedNodeStepSegments = new List<int[]>();
 
         public ImprovedAIConfig aiConfig = new ImprovedAIConfig();
-        public CSL_Traffic.RoadManager.Lane[] laneMarkers = new CSL_Traffic.RoadManager.Lane[NetManager.MAX_LANE_COUNT];
+        //public CSL_Traffic.RoadManager.Lane[] laneMarkers = new CSL_Traffic.RoadManager.Lane[NetManager.MAX_LANE_COUNT];
+        public List<CSL_Traffic.RoadManager.Lane> laneDict = new List<CSL_Traffic.RoadManager.Lane>();
 
         public string[] md5Sums = new string[11];
 

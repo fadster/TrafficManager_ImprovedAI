@@ -35,6 +35,11 @@ namespace TrafficManager_ImprovedAI
 				return;
 			}
 
+            if (!LoadingExtension.roadManagerInitialized && SerializableDataExtension.configLoaded) {
+                CSL_Traffic.RoadManager.Initialize();
+                LoadingExtension.roadManagerInitialized = true;
+            }
+
 			if (LoadingExtension.Instance.ToolMode != TrafficManagerMode.None && ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool)
 			{
 				LoadingExtension.Instance.UI.HideTMPanel();
@@ -103,6 +108,8 @@ namespace TrafficManager_ImprovedAI
 	{		
 		public static LoadingExtension Instance = null;
 
+        public static bool roadManagerInitialized = false;
+
 		List<RedirectCallsState> m_redirectionStates = new List<RedirectCallsState>();
 
 		public RedirectCallsState[] revertMethods = new RedirectCallsState[8];
@@ -156,6 +163,7 @@ namespace TrafficManager_ImprovedAI
 				UI = ToolsModifierControl.toolController.gameObject.AddComponent<UIBase>();
 				TrafficPriority.leftHandDrive = Singleton<SimulationManager>.instance.m_metaData.m_invertTraffic == SimulationMetaData.MetaBool.True;
                 AddTool<CSL_Traffic.RoadCustomizerTool>(ToolsModifierControl.toolController);
+                //ToolsModifierControl.SetTool<DefaultTool>();
 			}				
 		}
 
@@ -171,7 +179,9 @@ namespace TrafficManager_ImprovedAI
 			TrafficLightsManual.ManualSegments.Clear();
 			TrafficLightsTimed.timedScripts.Clear();
 			LoadingExtension.Instance.nodeSimulationLoaded = false;
-            ToolsModifierControl.SetTool<DefaultTool>();
+            SerializableDataExtension.configLoaded = false;
+            roadManagerInitialized = false;
+            //ToolsModifierControl.SetTool<DefaultTool>();
 		}
 
 		void ReplacePathManager()
