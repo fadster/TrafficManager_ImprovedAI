@@ -952,7 +952,7 @@ namespace CSL_Traffic
 		protected override void Awake()
 		{
 			base.Awake();
-			StartCoroutine(CreateToolButton());
+			//StartCoroutine(CreateToolButton());
 		}
 
 		IEnumerator CreateToolButton()
