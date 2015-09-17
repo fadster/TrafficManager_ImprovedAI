@@ -46,7 +46,7 @@ namespace TrafficManager_ImprovedAI
 			}
             */
             if (LoadingExtension.Instance.ToolMode != TrafficManagerMode.None &&
-                ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool &&
+            //if (ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.TrafficLightTool &&
                 ToolsModifierControl.toolController.CurrentTool != LoadingExtension.Instance.RoadCustomizerTool &&
                 LoadingExtension.Instance.UI.isVisible())
 			{

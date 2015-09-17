@@ -239,25 +239,24 @@ namespace TrafficManager_ImprovedAI
                 Debug.Log("setting AI values from config");
                 CustomPathFind.LoadAIParameters(configuration.aiConfig);
             } else {
-                Debug.Log("using default AI values");
+                Debug.Log("AI parameters not found in config, using default values");
                 CustomPathFind.ResetAIParameters();
             }
 
-            if (configuration.laneDict == null || configuration.laneDict.Count == 0) {
-                //CSL_Traffic.RoadManager.sm_lanes = configuration.laneMarkers;
+            if (configuration.laneMarkers == null || configuration.laneMarkers.Count == 0) {
                 Debug.Log("no lane markers found");
             } else {
-                Debug.Log("found " + configuration.laneDict.Count + " lane markers");
-                foreach (var lane in configuration.laneDict.ToArray()) {
+                Debug.Log("found " + configuration.laneMarkers.Count + " lane markers");
+                foreach (var lane in configuration.laneMarkers.ToArray()) {
                     if (lane != null) {
                         CSL_Traffic.RoadManager.sm_lanes[lane.m_laneId] = lane;
                     } else {
-                        Debug.Log("null lane in dict");
+                        Debug.Log("null lane marker!");
                     }
                 }
                 Debug.Log("loaded lane markers");
             }
-            //CSL_Traffic.RoadManager.Initialize();
+
             configLoaded = true;
         }
 
@@ -431,12 +430,10 @@ namespace TrafficManager_ImprovedAI
             configuration.aiConfig.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
             configuration.aiConfig.obeyTMLaneFlags = CustomPathFind.obeyTMLaneFlags;
 
-            //configuration.laneMarkers = CSL_Traffic.RoadManager.sm_lanes;
-
             for (var i = 0; i < CSL_Traffic.RoadManager.sm_lanes.Length; i++) {
                 var lane = CSL_Traffic.RoadManager.sm_lanes[i];
                 if (lane != null) {
-                    configuration.laneDict.Add(lane);
+                    configuration.laneMarkers.Add(lane);
                 }
             }
 
@@ -469,10 +466,9 @@ namespace TrafficManager_ImprovedAI
         public List<int[]> timedNodeStepSegments = new List<int[]>();
 
         public ImprovedAIConfig aiConfig = new ImprovedAIConfig();
-        //public CSL_Traffic.RoadManager.Lane[] laneMarkers = new CSL_Traffic.RoadManager.Lane[NetManager.MAX_LANE_COUNT];
-        public List<CSL_Traffic.RoadManager.Lane> laneDict = new List<CSL_Traffic.RoadManager.Lane>();
+        public List<CSL_Traffic.RoadManager.Lane> laneMarkers = new List<CSL_Traffic.RoadManager.Lane>();
 
-        public string[] md5Sums = new string[11];
+        public string[] md5Sums = new string[12];
 
         public override string ToString()
         {
@@ -517,6 +513,7 @@ namespace TrafficManager_ImprovedAI
             md5Sums[8] = MD5HashGenerator.GenerateKey(timedNodeSteps);
             md5Sums[9] = MD5HashGenerator.GenerateKey(timedNodeStepSegments);
             md5Sums[10] = MD5HashGenerator.GenerateKey(aiConfig);
+            md5Sums[11] = MD5HashGenerator.GenerateKey(laneMarkers);
         }
 
         private bool CheckHashCodes()
@@ -533,7 +530,8 @@ namespace TrafficManager_ImprovedAI
                     md5Sums[7] == MD5HashGenerator.GenerateKey(timedNodeGroups) &&
                     md5Sums[8] == MD5HashGenerator.GenerateKey(timedNodeSteps) &&
                     md5Sums[9] == MD5HashGenerator.GenerateKey(timedNodeStepSegments) &&
-                    md5Sums[10] == MD5HashGenerator.GenerateKey(aiConfig));
+                    md5Sums[10] == MD5HashGenerator.GenerateKey(aiConfig) &&
+                    md5Sums[11] == MD5HashGenerator.GenerateKey(laneMarkers));
             } catch(Exception e) {
                 Debug.Log("missing or invalid hash code data triggered exception: " + e);
                 return false;
@@ -605,10 +603,8 @@ namespace TrafficManager_ImprovedAI
                     Debug.Log(config.ToString());
                     if (config.CheckHashCodes()) {
                         Debug.Log("configuration hash codes verified!");
-                    } else if (config.aiConfig.congestionCostFactor > 0) {
-                        Debug.LogWarning("configuration hash code mismatch, probable data corruption!");
                     } else {
-                        Debug.Log("AI parameters not found in config, using default values");
+                        Debug.LogWarning("configuration hash code mismatch, probable data corruption! (ignore if loading data from previous version of this mod)");
                     }
                     return config;
                 }

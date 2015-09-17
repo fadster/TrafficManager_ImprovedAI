@@ -192,7 +192,7 @@ namespace TrafficManager_ImprovedAI
             if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) {
                 buttonLaneChange.focusedBgSprite = "ButtonMenuFocused";
                 LoadingExtension.Instance.SetToolMode(TrafficManagerMode.TrafficLight);
-                TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
+                //TrafficLightTool.setToolMode(TrafficLightTool.ToolMode.None);
                 ToolsModifierControl.toolController.CurrentTool = LoadingExtension.Instance.RoadCustomizerTool;
                 ToolsModifierControl.SetTool<CSL_Traffic.RoadCustomizerTool>();
             } else {
