@@ -20,8 +20,6 @@ namespace CSL_Traffic
             public uint m_laneId;
             public ushort m_nodeId;
             public List<uint> m_laneConnections = new List<uint>();
-            //public VehicleType m_vehicleTypes = VehicleType.All;
-            //public float m_speed = 1f;            
 
             public bool AddConnection(uint laneId)
             {
@@ -116,11 +114,6 @@ namespace CSL_Traffic
 
             public bool ConnectsTo(uint laneId)
             {
-                /*
-                if ((NetManager.instance.m_lanes.m_buffer[laneId].m_flags & TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT) != TrafficManager_ImprovedAI.SerializableDataExtension.CONTROL_BIT)) {
-                    VerifyConnections();
-                }
-                */
                 VerifyConnections();
 
                 bool result = true;
@@ -256,7 +249,6 @@ namespace CSL_Traffic
             try 
             {
                 FastList<ushort> nodesList = new FastList<ushort>();
-                //Debug.Log("road manager lanes = " + ((RoadManager.sm_lanes != null) ? RoadManager.sm_lanes.Length + "" : "null"));
                 var i = 0;
                 foreach (Lane lane in RoadManager.sm_lanes)
                 {
@@ -266,33 +258,12 @@ namespace CSL_Traffic
                     i++;
                     lane.UpdateArrows();
                     if (lane.ConnectionCount() > 0) {
-                        //Debug.Log("adding node " + lane.m_nodeId + " with " + lane.ConnectionCount() + " connections");
                         nodesList.Add(lane.m_nodeId);
                     }
-
-                    /*
-                    if (lane.m_speed == 0)
-                    {
-                        NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[lane.m_laneId].m_segment];
-                        NetInfo info = segment.Info;
-                        uint l = segment.m_lanes;
-                        int n = 0;
-                        while (l != lane.m_laneId && n < info.m_lanes.Length)
-                        {
-                            l = NetManager.instance.m_lanes.m_buffer[l].m_nextLane;
-                            n++;
-                        }
-
-                        if (n < info.m_lanes.Length)
-                            lane.m_speed = info.m_lanes[n].m_speedLimit;
-                    }
-                    */
-
                 }
 
                 Debug.Log("setting node markers for " + nodesList.m_size + " nodes with " + i + " lanes");
                 RoadCustomizerTool customizerTool = ToolsModifierControl.GetTool<RoadCustomizerTool>();
-                //Debug.Log("customizerTool = " + customizerTool);
                 customizerTool.ClearNodeMarkers();
                 foreach (ushort nodeId in nodesList) {
                     customizerTool.SetNodeMarkers(nodeId, true);
@@ -312,36 +283,8 @@ namespace CSL_Traffic
             {
                 m_laneId = laneId
             };
-
-            //NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[laneId].m_segment];
-            //NetInfo netInfo = segment.Info;
-            //int laneCount = netInfo.m_lanes.Length;
-            //int laneIndex = 0;
-            /*
-            for (uint l = segment.m_lanes; laneIndex < laneCount && l != 0; laneIndex++)
-            {
-                if (l == laneId)
-                    break;
-
-                l = NetManager.instance.m_lanes.m_buffer[l].m_nextLane;
-            }
-            */
-
-            /*
-            if (laneIndex < laneCount)
-            {
-                NetInfoLane netInfoLane = netInfo.m_lanes[laneIndex] as NetInfoLane;
-                if (netInfoLane != null)
-                    lane.m_vehicleTypes = netInfoLane.m_allowedVehicleTypes;
-
-                lane.m_speed = netInfo.m_lanes[laneIndex].m_speedLimit;
-            }
-            */
-
             NetManager.instance.m_lanes.m_buffer[laneId].m_flags |= Lane.CONTROL_BIT;
-
             sm_lanes[laneId] = lane;
-
             return lane;
         }
 

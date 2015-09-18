@@ -557,31 +557,6 @@ namespace TrafficManager_ImprovedAI
             return true;
         }
 
-/*
-        private bool LogHashErrors()
-        {
-            try {
-                Debug.Log("sum 0 - " + (md5Sums[0] == MD5HashGenerator.GenerateKey(nodeTrafficLights)) ? "pass" : "fail");
-                Debug.Log("sum 1 - " + (md5Sums[1] == MD5HashGenerator.GenerateKey(nodeCrosswalk)) ? "pass" : "fail");
-                Debug.Log("sum 2 - " + (
-
-                    md5Sums[2] == MD5HashGenerator.GenerateKey(laneFlags) &&
-                    md5Sums[3] == MD5HashGenerator.GenerateKey(prioritySegments) &&
-                    md5Sums[4] == MD5HashGenerator.GenerateKey(nodeDictionary) &&
-                    md5Sums[5] == MD5HashGenerator.GenerateKey(manualSegments) &&
-                    md5Sums[6] == MD5HashGenerator.GenerateKey(timedNodes) &&
-                    md5Sums[7] == MD5HashGenerator.GenerateKey(timedNodeGroups) &&
-                    md5Sums[8] == MD5HashGenerator.GenerateKey(timedNodeSteps) &&
-                    md5Sums[9] == MD5HashGenerator.GenerateKey(timedNodeStepSegments) &&
-                    md5Sums[10] == MD5HashGenerator.GenerateKey(aiConfig) &&
-                    md5Sums[11] == MD5HashGenerator.GenerateKey(laneMarkers));
-            } catch(Exception e) {
-                Debug.Log("missing or invalid hash code data triggered exception: " + e);
-                return false;
-            }
-        }
-        */
-
         public void OnPreSerialize()
         {
         }
