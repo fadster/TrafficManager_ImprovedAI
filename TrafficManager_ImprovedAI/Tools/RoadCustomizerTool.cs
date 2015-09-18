@@ -52,6 +52,39 @@ namespace CSL_Traffic
 				return;
 			}
 				
+
+            if (m_hoveredSegment != 0)
+            {
+                NetSegment segment = NetManager.instance.m_segments.m_buffer[m_hoveredSegment];
+                NetNode startNode = NetManager.instance.m_nodes.m_buffer[segment.m_startNode];
+                NetNode endNode = NetManager.instance.m_nodes.m_buffer[segment.m_endNode];
+                Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    
+                if (startNode.CountSegments() > 1)
+                {
+                    Bounds bounds = startNode.m_bounds;
+                    if (m_hoveredNode != 0)
+                        bounds.extents /= 2f;
+                    if (bounds.IntersectRay(mouseRay))
+                    {
+                        m_hoveredSegment = 0;
+                        m_hoveredNode = segment.m_startNode;
+                    }
+                }
+
+                if (m_hoveredSegment != 0 && endNode.CountSegments() > 1)
+                {
+                    Bounds bounds = endNode.m_bounds;
+                    if (m_hoveredNode != 0)
+                        bounds.extents /= 2f;
+                    if (bounds.IntersectRay(mouseRay))
+                    {
+                        m_hoveredSegment = 0;
+                        m_hoveredNode = segment.m_endNode;
+                    }
+                }
+            }
+
 			if (m_hoveredNode != 0 && NetManager.instance.m_nodes.m_buffer[m_hoveredNode].CountSegments() < 2)
 			{
 				m_hoveredNode = 0;

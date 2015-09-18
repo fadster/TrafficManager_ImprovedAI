@@ -243,18 +243,28 @@ namespace TrafficManager_ImprovedAI
                 CustomPathFind.ResetAIParameters();
             }
 
+            CSL_Traffic.RoadManager.sm_lanes = new CSL_Traffic.RoadManager.Lane[NetManager.MAX_LANE_COUNT];
+            int dupes = 0, zero = 0;
             if (configuration.laneMarkers == null || configuration.laneMarkers.Count == 0) {
                 Debug.Log("no lane markers found");
             } else {
                 Debug.Log("found " + configuration.laneMarkers.Count + " lane markers");
                 foreach (var lane in configuration.laneMarkers.ToArray()) {
                     if (lane != null) {
-                        CSL_Traffic.RoadManager.sm_lanes[lane.m_laneId] = lane;
+                        if (CSL_Traffic.RoadManager.sm_lanes[lane.m_laneId] == null) {
+                            if (lane.ConnectionCount() > 0) {
+                                CSL_Traffic.RoadManager.sm_lanes[lane.m_laneId] = lane;
+                            } else {
+                                zero++;
+                            }
+                        } else {
+                            dupes++;
+                        }
                     } else {
                         Debug.Log("null lane marker!");
                     }
                 }
-                Debug.Log("loaded lane markers");
+                Debug.Log("loaded lane markers - " + dupes + " duplicates, " + zero + " unconnected");
             }
 
             configLoaded = true;
@@ -432,7 +442,7 @@ namespace TrafficManager_ImprovedAI
 
             for (var i = 0; i < CSL_Traffic.RoadManager.sm_lanes.Length; i++) {
                 var lane = CSL_Traffic.RoadManager.sm_lanes[i];
-                if (lane != null) {
+                if (lane != null && lane.ConnectionCount() > 0) {
                     configuration.laneMarkers.Add(lane);
                 }
             }
@@ -520,9 +530,41 @@ namespace TrafficManager_ImprovedAI
         private bool CheckHashCodes()
         {
             try {
+                var i = 0;
                 return (
-                    md5Sums[0] == MD5HashGenerator.GenerateKey(nodeTrafficLights) &&
-                    md5Sums[1] == MD5HashGenerator.GenerateKey(nodeCrosswalk) &&
+                    (md5Sums[0] == MD5HashGenerator.GenerateKey(nodeTrafficLights) || LogHashcodeMismatch(0, i++)) &&
+                    (md5Sums[1] == MD5HashGenerator.GenerateKey(nodeCrosswalk) || LogHashcodeMismatch(1, i++)) &&
+                    (md5Sums[2] == MD5HashGenerator.GenerateKey(laneFlags) || LogHashcodeMismatch(2, i++)) &&
+                    (md5Sums[3] == MD5HashGenerator.GenerateKey(prioritySegments) || LogHashcodeMismatch(3, i++)) &&
+                    (md5Sums[4] == MD5HashGenerator.GenerateKey(nodeDictionary) || LogHashcodeMismatch(4, i++)) &&
+                    (md5Sums[5] == MD5HashGenerator.GenerateKey(manualSegments) || LogHashcodeMismatch(5, i++)) &&
+                    (md5Sums[6] == MD5HashGenerator.GenerateKey(timedNodes) || LogHashcodeMismatch(6, i++)) &&
+                    (md5Sums[7] == MD5HashGenerator.GenerateKey(timedNodeGroups) || LogHashcodeMismatch(7, i++)) &&
+                    (md5Sums[8] == MD5HashGenerator.GenerateKey(timedNodeSteps) || LogHashcodeMismatch(8, i++)) &&
+                    (md5Sums[9] == MD5HashGenerator.GenerateKey(timedNodeStepSegments) || LogHashcodeMismatch(9, i++)) &&
+                    (md5Sums[10] == MD5HashGenerator.GenerateKey(aiConfig) || LogHashcodeMismatch(10, i++)) &&
+                    (md5Sums[11] == MD5HashGenerator.GenerateKey(laneMarkers) || LogHashcodeMismatch(11, i++)) &&
+                    i == 0);
+            } catch(Exception e) {
+                Debug.Log("missing or invalid hash code data triggered exception: " + e);
+                return false;
+            }
+        }
+
+        private bool LogHashcodeMismatch(int i, int dummy)
+        {
+            Debug.Log("md5sum[" + i + "] mismatch");
+            return true;
+        }
+
+/*
+        private bool LogHashErrors()
+        {
+            try {
+                Debug.Log("sum 0 - " + (md5Sums[0] == MD5HashGenerator.GenerateKey(nodeTrafficLights)) ? "pass" : "fail");
+                Debug.Log("sum 1 - " + (md5Sums[1] == MD5HashGenerator.GenerateKey(nodeCrosswalk)) ? "pass" : "fail");
+                Debug.Log("sum 2 - " + (
+
                     md5Sums[2] == MD5HashGenerator.GenerateKey(laneFlags) &&
                     md5Sums[3] == MD5HashGenerator.GenerateKey(prioritySegments) &&
                     md5Sums[4] == MD5HashGenerator.GenerateKey(nodeDictionary) &&
@@ -538,6 +580,7 @@ namespace TrafficManager_ImprovedAI
                 return false;
             }
         }
+        */
 
         public void OnPreSerialize()
         {

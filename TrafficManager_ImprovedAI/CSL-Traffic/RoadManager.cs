@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
+//using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using UnityEngine;
 
@@ -14,6 +14,7 @@ namespace CSL_Traffic
         [Serializable]
         public class Lane
         {
+            [NonSerialized]
             public const ushort CONTROL_BIT = 2048;
 
             public uint m_laneId;
@@ -312,10 +313,11 @@ namespace CSL_Traffic
                 m_laneId = laneId
             };
 
-            NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[laneId].m_segment];
-            NetInfo netInfo = segment.Info;
-            int laneCount = netInfo.m_lanes.Length;
-            int laneIndex = 0;
+            //NetSegment segment = NetManager.instance.m_segments.m_buffer[NetManager.instance.m_lanes.m_buffer[laneId].m_segment];
+            //NetInfo netInfo = segment.Info;
+            //int laneCount = netInfo.m_lanes.Length;
+            //int laneIndex = 0;
+            /*
             for (uint l = segment.m_lanes; laneIndex < laneCount && l != 0; laneIndex++)
             {
                 if (l == laneId)
@@ -323,6 +325,7 @@ namespace CSL_Traffic
 
                 l = NetManager.instance.m_lanes.m_buffer[l].m_nextLane;
             }
+            */
 
             /*
             if (laneIndex < laneCount)

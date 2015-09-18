@@ -99,11 +99,12 @@ namespace TrafficManager_ImprovedAI
 				LoadingExtension.Instance.nodeSimulationLoaded = true;
 				ToolsModifierControl.toolController.gameObject.AddComponent<CustomRoadAI>();
 			}
-
+            /*
 			if (Input.GetKeyDown(KeyCode.Escape))
 			{
 				LoadingExtension.Instance.UI.HideTMPanel();
 			}
+            */         
 		}
 	}
 		
