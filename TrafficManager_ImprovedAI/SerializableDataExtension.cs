@@ -178,7 +178,7 @@ namespace TrafficManager_ImprovedAI
             var j1 = 0;
             var i1 = 0;
             try {
-                for (i1 = 0; i1 < 32768; i1++) {
+                for (i1 = 0; i1 < NetManager.MAX_NODE_COUNT; i1++) {
                     if (Singleton<NetManager>.instance.m_nodes.m_buffer[i1].Info.m_class.m_service ==
                     ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags != 0) {
                         var trafficLight = configuration.nodeTrafficLights[j1];
@@ -199,7 +199,7 @@ namespace TrafficManager_ImprovedAI
             var j2 = 0;
             var i2 = 0;
             try {
-                for (i2 = 0; i2 < 32768; i2++) {
+                for (i2 = 0; i2 < NetManager.MAX_NODE_COUNT; i2++) {
                     if (Singleton<NetManager>.instance.m_nodes.m_buffer[i2].Info.m_class.m_service ==
                     ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags != 0) {
                         var crossWalk = configuration.nodeCrosswalk[j2];
@@ -296,7 +296,7 @@ namespace TrafficManager_ImprovedAI
             configuration.nodeCrosswalk = "";
             configuration.nodeTrafficLights = "";
 
-            for (var i = 0; i < 32768; i++) {
+            for (var i = 0; i < NetManager.MAX_SEGMENT_COUNT; i++) {
                 if (TrafficPriority.prioritySegments.ContainsKey(i)) {
                     if (TrafficPriority.prioritySegments[i].node_1 != 0) {
                         configuration.prioritySegments.Add(new int[3] {
