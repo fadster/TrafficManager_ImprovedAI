@@ -13,13 +13,16 @@ namespace TrafficManager_ImprovedAI
 {
     public class SerializableDataExtension : ISerializableDataExtension
     {
-        public static string dataID = "TrafficManager_v0.9";
+        public static string legacyDataID = "TrafficManager_v0.9";
+        public static string saveDataID = "TrafficManager-SaveData";
         public static UInt32 uniqueID;
         public const ushort CONTROL_BIT = 4096;
 
         public static ISerializableData SerializableData;
 
         public static bool configLoaded = false;
+
+        private static byte[] saveData = null;
         private static Timer _timer;
 
         public void OnCreated(ISerializableData serializableData)
@@ -44,38 +47,46 @@ namespace TrafficManager_ImprovedAI
         public void OnLoadData()
         {
             configLoaded = false;
-            byte[] data = SerializableData.LoadData(dataID);
+            byte[] data = SerializableData.LoadData(legacyDataID);
+            saveData = SerializableData.LoadData(saveDataID);
 
-            if (data == null) {
+            if ((data == null && saveData == null) || LoadingExtension.ignoreSavedData) {
+                LoadingExtension.ignoreSavedData = false;
                 GenerateUniqueID();
             } else {
                 _timer = new System.Timers.Timer(2000);
                 // Hook up the Elapsed event for the timer. 
                 _timer.Elapsed += OnLoadDataTimed;
                 _timer.Enabled = true;
+                _timer.AutoReset = false;
             }
         }
 
         public static void OnLoadDataTimed(System.Object source, ElapsedEventArgs e)
         {
             _timer.Enabled = false;
-            byte[] data = SerializableData.LoadData(dataID);
-
-            uniqueID = 0u;
+            Configuration configuration;
             var i = 0;
 
-            for (i = 0; i < data.Length - 3; i++) {
-                uniqueID = BitConverter.ToUInt32(data, i);
-            }
+            if (saveData != null) {
+                configuration = Configuration.Deserialize(saveData);
+            } else {
+                byte[] data = SerializableData.LoadData(legacyDataID);
 
-            var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
+                uniqueID = 0u;
 
-            if (!File.Exists(filepath)) {
-                Debug.Log("Traffic manager save file " + filepath + " not found!");
-                return;
+                for (i = 0; i < data.Length - 3; i++) {
+                    uniqueID = BitConverter.ToUInt32(data, i);
+                }
+
+                var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
+
+                if (!File.Exists(filepath)) {
+                    Debug.Log("Traffic manager save file " + filepath + " not found!");
+                    return;
+                }
+                configuration = Configuration.Deserialize(filepath);
             }
-            
-            var configuration = Configuration.Deserialize(filepath);
 
             try {
                 for (i = 0; i < configuration.prioritySegments.Count; i++) {
@@ -89,7 +100,6 @@ namespace TrafficManager_ImprovedAI
             } catch (Exception ex) {
                 Debug.Log("prio segments exception at " + i + " - " + ex);
             }
-
 
             try {
                 for (i = 0; i < configuration.nodeDictionary.Count; i++) {
@@ -272,6 +282,7 @@ namespace TrafficManager_ImprovedAI
 
         public void OnSaveData()
         {
+            /*
             FastList<byte> data = new FastList<byte>();
 //            Debug.Log("OnSaveData() 1");    
             GenerateUniqueID(); 
@@ -283,11 +294,12 @@ namespace TrafficManager_ImprovedAI
 //            Debug.Log("OnSaveData() 2");
 
             byte[] dataToSave = data.ToArray();
-            SerializableData.SaveData(dataID, dataToSave);
-
+            SerializableData.SaveData(legacyDataID, dataToSave);
+            
 //            Debug.Log("OnSaveData() 3");
             var filepath = Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml");
 //            Debug.Log("OnSaveData()");
+            */
 
             var configuration = new Configuration();
 //            Debug.Log("OnSaveData() 4");
@@ -438,7 +450,7 @@ namespace TrafficManager_ImprovedAI
             configuration.aiConfig.minLaneSpace = CustomPathFind.minLaneSpace;
             configuration.aiConfig.lookaheadLanes = CustomPathFind.lookaheadLanes;
             configuration.aiConfig.congestedLaneThreshold = CustomPathFind.congestedLaneThreshold;
-            configuration.aiConfig.obeyTMLaneFlags = CustomPathFind.obeyTMLaneFlags;
+//            configuration.aiConfig.obeyTMLaneFlags = CustomPathFind.obeyTMLaneFlags;
 
             for (var i = 0; i < CSL_Traffic.RoadManager.sm_lanes.Length; i++) {
                 var lane = CSL_Traffic.RoadManager.sm_lanes[i];
@@ -447,7 +459,8 @@ namespace TrafficManager_ImprovedAI
                 }
             }
 
-            Configuration.Serialize(filepath, configuration);
+            //Configuration.Serialize(filepath, configuration);
+            Configuration.Serialize(SerializableData, saveDataID, configuration);
         }
     }
 
@@ -460,7 +473,7 @@ namespace TrafficManager_ImprovedAI
             public float minLaneSpace;
             public int lookaheadLanes;
             public int congestedLaneThreshold;
-            public bool obeyTMLaneFlags;
+//            public bool obeyTMLaneFlags;
         }
 
         public string nodeTrafficLights;
@@ -503,8 +516,8 @@ namespace TrafficManager_ImprovedAI
                 s += "minimum lane space = " + aiConfig.minLaneSpace + "\n";
                 s += "congestion cost factor = " + aiConfig.congestionCostFactor + "\n";
                 s += "lookahead lanes = " + aiConfig.lookaheadLanes + "\n";
-                s += "congested lane threshold = " + aiConfig.congestedLaneThreshold + "\n";
-                s += "obey traffic manager lane flags = " + aiConfig.obeyTMLaneFlags;
+                s += "congested lane threshold = " + aiConfig.congestedLaneThreshold;
+                //s += "obey traffic manager lane flags = " + aiConfig.obeyTMLaneFlags;
             } catch (Exception e) {
                 Debug.Log("error constructing string representation of configuration data, probable corruption! - " + e);
             }
@@ -605,6 +618,52 @@ namespace TrafficManager_ImprovedAI
             using (var writer = new StreamWriter(filename)) {
                 config.OnPreSerialize();
                 serializer.Serialize(writer, config);
+            }
+        }
+
+        public static void Serialize(ISerializableData serializableData, string dataID, Configuration config)
+        {
+            config.ComputeHashCodes();
+            Debug.Log("serializing to save data");
+            Debug.Log(config.ToString());
+
+            var serializer = new XmlSerializer(typeof(Configuration));
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
+            RegisterEvents(ref serializer);    
+            byte[] configData;
+
+            using (var memoryStream = new MemoryStream()) {
+                config.OnPreSerialize();
+                serializer.Serialize(memoryStream, config, ns);
+                configData = memoryStream.ToArray();
+            }
+
+            serializableData.SaveData(dataID, configData);
+        }
+
+        public static Configuration Deserialize(byte[] saveData)
+        {
+            Debug.Log("deserializing from save data");
+
+            var serializer = new XmlSerializer(typeof(Configuration));
+            RegisterEvents(ref serializer);    
+
+            try {
+                using (var memoryStream = new MemoryStream(saveData)) {
+                    var config = (Configuration)serializer.Deserialize(memoryStream);
+                    config.OnPostDeserialize();
+                    Debug.Log(config.ToString());
+                    if (config.CheckHashCodes()) {
+                        Debug.Log("configuration hash codes verified!");
+                    } else {
+                        Debug.LogWarning("configuration hash code mismatch, probable data corruption! (ignore if loading data from previous version of this mod)");
+                    }
+                    return config;
+                }
+            } catch (Exception e) {
+                Debug.Log("deserialize exception " + e);
+                return null;
             }
         }
 

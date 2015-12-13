@@ -130,8 +130,8 @@ namespace TrafficManager_ImprovedAI
             set { m_congestedLaneThreshold = Mathf.Min(Mathf.Max(value, MIN_CONGESTED_LANE_THRESHOLD), Mathf.Min(MAX_CONGESTED_LANE_THRESHOLD, m_lookaheadLanes)); }
         }
 
-        private static bool m_obeyTMLanes = true;
-        public static bool obeyTMLaneFlags { get { return m_obeyTMLanes; } set { m_obeyTMLanes = value; } }
+//        private static bool m_obeyTMLanes = true;
+//        public static bool obeyTMLaneFlags { get { return m_obeyTMLanes; } set { m_obeyTMLanes = value; } }
 
         public static void ResetAIParameters()
         {
@@ -139,7 +139,7 @@ namespace TrafficManager_ImprovedAI
             m_minLaneSpace = DEF_MIN_LANE_SPACE;
             m_lookaheadLanes = DEF_LOOKAHEAD_LANES;
             m_congestedLaneThreshold = DEF_CONGESTED_LANE_THRESHOLD;
-            m_obeyTMLanes = true;
+//            m_obeyTMLanes = true;
         }
 
         public static void LoadAIParameters(Configuration.ImprovedAIConfig parameters)
@@ -148,7 +148,7 @@ namespace TrafficManager_ImprovedAI
             m_minLaneSpace = parameters.minLaneSpace;
             m_lookaheadLanes = parameters.lookaheadLanes;
             m_congestedLaneThreshold = parameters.congestedLaneThreshold;
-            m_obeyTMLanes = parameters.obeyTMLaneFlags;
+//            m_obeyTMLanes = parameters.obeyTMLaneFlags;
         }
 
         private void Awake()
@@ -1007,7 +1007,8 @@ namespace TrafficManager_ImprovedAI
             while (num12 < num && num2 != 0u)
             {
                 NetInfo.Lane lane2 = info.m_lanes[num12];
-                if ((byte)(lane2.m_finalDirection & direction2) != 0 && (!m_obeyTMLanes || CSL_Traffic.RoadManager.CheckLaneConnection(num2, item.m_laneID, targetNode)))
+//                if ((byte)(lane2.m_finalDirection & direction2) != 0 && (!m_obeyTMLanes || CSL_Traffic.RoadManager.CheckLaneConnection(num2, item.m_laneID, targetNode)))
+                if ((byte)(lane2.m_finalDirection & direction2) != 0 && CSL_Traffic.RoadManager.CheckLaneConnection(num2, item.m_laneID, targetNode))
                 {
                     if (lane2.CheckType(laneType2, vehicleType2) && (segmentID != item.m_position.m_segment || num12 != (int)item.m_position.m_lane) && (byte)(lane2.m_finalDirection & direction2) != 0)
                     {

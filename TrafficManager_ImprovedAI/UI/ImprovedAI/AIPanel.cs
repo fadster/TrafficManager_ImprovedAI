@@ -13,7 +13,7 @@ namespace TrafficManager_ImprovedAI
         private static UISliderInput minLaneSpace;
         private static UISliderInput lookaheadLanes;
         private static UISliderInput congestedLaneThreshold;
-        private static UILabelledBox obeyTMLaneFlags;
+        //private static UILabelledBox obeyTMLaneFlags;
         private static UIButton resetButton;
 
         public override void Start()
@@ -98,6 +98,7 @@ namespace TrafficManager_ImprovedAI
             congestedLaneThreshold.SliderValue = CustomPathFind.congestedLaneThreshold;
 
             yVal += 58;
+            /*
             obeyTMLaneFlags = this.AddUIComponent<UILabelledBox>();
             obeyTMLaneFlags.Parent = this;
             obeyTMLaneFlags.relativePosition = new Vector3(0, yVal);
@@ -109,6 +110,7 @@ namespace TrafficManager_ImprovedAI
                 CustomPathFind.obeyTMLaneFlags = value;
                 Monitor.Exit(obeyTMLaneFlags);
             };
+            */
 
             resetButton = this.AddUIComponent<UIButton>();
             resetButton.text = "reset";
@@ -141,13 +143,13 @@ namespace TrafficManager_ImprovedAI
             base.Hide();
             isVisible = false;
         }
-
+        /*
         public void SetObeyTMLanes(Boolean obey)
         {
             obeyTMLaneFlags.CheckBox.isChecked = obey;
             CustomPathFind.obeyTMLaneFlags = obey;
         }
-
+        */
         private void ReconcileValues()
         {
             if (!Mathf.Approximately(congestionCostFactor.SliderValue, CustomPathFind.congestionCostFactor)) {
@@ -174,12 +176,14 @@ namespace TrafficManager_ImprovedAI
                 lookaheadLanes.SliderValue = CustomPathFind.lookaheadLanes;
                 Monitor.Exit(lookaheadLanes);
             }
+            /*
             if (obeyTMLaneFlags.CheckBox.isChecked != CustomPathFind.obeyTMLaneFlags) {
                 while (!Monitor.TryEnter(obeyTMLaneFlags, SimulationManager.SYNCHRONIZE_TIMEOUT)) {
                 }
                 obeyTMLaneFlags.CheckBox.isChecked = CustomPathFind.obeyTMLaneFlags;
                 Monitor.Exit(obeyTMLaneFlags);
             }
+            */
         }
     }
 }
