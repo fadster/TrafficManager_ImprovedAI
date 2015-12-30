@@ -185,46 +185,74 @@ namespace TrafficManager_ImprovedAI
             }
 
 
-            var j1 = 0;
-            var i1 = 0;
-            try {
-                for (i1 = 0; i1 < NetManager.MAX_NODE_COUNT; i1++) {
-                    if (Singleton<NetManager>.instance.m_nodes.m_buffer[i1].Info.m_class.m_service ==
-                    ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags != 0) {
-                        var trafficLight = configuration.nodeTrafficLights[j1];
-
-                        if (trafficLight == '1') {
-                            Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags |= NetNode.Flags.TrafficLights;
-                        } else {
-                            Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags &= ~NetNode.Flags.TrafficLights;
+            if (configuration.configVersion < 2.0f) {
+                var j1 = 0;
+                var i1 = 0;
+                try {
+                    for (i1 = 0; i1 < NetManager.MAX_NODE_COUNT; i1++) {
+                        if (Singleton<NetManager>.instance.m_nodes.m_buffer[i1].Info.m_class.m_service ==
+                            ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags != 0) {
+                            var trafficLight = configuration.nodeTrafficLights[j1];
+                
+                            if (trafficLight == '1') {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags |= NetNode.Flags.TrafficLights;
+                            } else {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[i1].m_flags &= ~NetNode.Flags.TrafficLights;
+                            }
+                
+                            j1++;
                         }
+                    }
+                } catch (Exception ex) {
+                    Debug.Log("traf lights exception at i1 = " + i1 + " j1 = " + j1 + " - " + ex);
+                }
+                
+                var j2 = 0;
+                var i2 = 0;
+                try {
+                    for (i2 = 0; i2 < NetManager.MAX_NODE_COUNT; i2++) {
+                        if (Singleton<NetManager>.instance.m_nodes.m_buffer[i2].Info.m_class.m_service ==
+                            ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags != 0) {
+                            var crossWalk = configuration.nodeCrosswalk[j2];
+                
+                            if (crossWalk == '1') {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags |= NetNode.Flags.Junction;
+                            } else {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags &= ~NetNode.Flags.Junction;
+                            }
+                
+                            j2++;
+                        }
+                    }
+                } catch (Exception ex) {
+                    Debug.Log("crosswalk exception at i2 = " + i2 + " j2 = " + j2 + " - " + ex);
+                }
+            } else {
+                var nodeIds = configuration.nodeIds;
+                if (nodeIds != null && nodeIds.Length > 0) {
+                    var ids = nodeIds.Split(',');
+                    for (i = 0; i < ids.Length; i++) {
+                        var id = Convert.ToUInt32(ids[i]);
+                        var trafficLight = configuration.nodeTrafficLights[i];
+                        var crossWalk = configuration.nodeCrosswalk[i];
 
-                        j1++;
+                        if (Singleton<NetManager>.instance.m_nodes.m_buffer[id].Info.m_class.m_service ==
+                            ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[id].m_flags != 0) {
+
+                            if (trafficLight == '1') {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[id].m_flags |= NetNode.Flags.TrafficLights;
+                            } else {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[id].m_flags &= ~NetNode.Flags.TrafficLights;
+                            }
+
+                            if (crossWalk == '1') {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[id].m_flags |= NetNode.Flags.Junction;
+                            } else {
+                                Singleton<NetManager>.instance.m_nodes.m_buffer[id].m_flags &= ~NetNode.Flags.Junction;
+                            }
+                        }
                     }
                 }
-            } catch (Exception ex) {
-                Debug.Log("traf lights exception at i1 = " + i1 + " j1 = " + j1 + " - " + ex);
-            }
-
-            var j2 = 0;
-            var i2 = 0;
-            try {
-                for (i2 = 0; i2 < NetManager.MAX_NODE_COUNT; i2++) {
-                    if (Singleton<NetManager>.instance.m_nodes.m_buffer[i2].Info.m_class.m_service ==
-                    ItemClass.Service.Road && Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags != 0) {
-                        var crossWalk = configuration.nodeCrosswalk[j2];
-
-                        if (crossWalk == '1') {
-                            Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags |= NetNode.Flags.Junction;
-                        } else {
-                            Singleton<NetManager>.instance.m_nodes.m_buffer[i2].m_flags &= ~NetNode.Flags.Junction;
-                        }
-
-                        j2++;
-                    }
-                }
-            } catch (Exception ex) {
-                Debug.Log("crosswalk exception at i2 = " + i2 + " j2 = " + j2 + " - " + ex);
             }
 
             var lanes = configuration.laneFlags.TrimEnd(',').Split(',');
@@ -302,6 +330,8 @@ namespace TrafficManager_ImprovedAI
             */
 
             var configuration = new Configuration();
+            configuration.configVersion = 2.0f;
+
 //            Debug.Log("OnSaveData() 4");
 
             configuration.laneFlags = "";
@@ -423,12 +453,16 @@ namespace TrafficManager_ImprovedAI
                 if (nodeFlags != 0) {
                     if (Singleton<NetManager>.instance.m_nodes.m_buffer[i].Info.m_class.m_service ==
                         ItemClass.Service.Road) {
+                        configuration.nodeIds += i + ",";
                         configuration.nodeTrafficLights +=
                             Convert.ToInt16((nodeFlags & NetNode.Flags.TrafficLights) != NetNode.Flags.None);
                         configuration.nodeCrosswalk +=
                             Convert.ToInt16((nodeFlags & NetNode.Flags.Junction) != NetNode.Flags.None);
                     }
                 }
+            }
+            if (configuration.nodeIds != null && configuration.nodeIds.Length > 0) {
+                configuration.nodeIds = configuration.nodeIds.TrimEnd(',');
             }
             //Debug.Log("OnSaveData() 12");
 
@@ -461,6 +495,9 @@ namespace TrafficManager_ImprovedAI
 
             //Configuration.Serialize(filepath, configuration);
             Configuration.Serialize(SerializableData, saveDataID, configuration);
+
+            GenerateUniqueID();
+            Configuration.Serialize(Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml"), configuration);
         }
     }
 
@@ -476,8 +513,11 @@ namespace TrafficManager_ImprovedAI
 //            public bool obeyTMLaneFlags;
         }
 
+        public float configVersion = 0.0f;
+
         public string nodeTrafficLights;
         public string nodeCrosswalk;
+        public string nodeIds;
         public string laneFlags;
 
         public List<int[]> prioritySegments = new List<int[]>();
@@ -497,6 +537,7 @@ namespace TrafficManager_ImprovedAI
         {
             var s = "\n";
             try {
+                s += "TM + AI configuration version: " + configVersion + "\n\n";
                 s += "Traffic Manager\n";
                 s += "---------------\n";
                 s += "priority segments: " + prioritySegments.Count + "\n";

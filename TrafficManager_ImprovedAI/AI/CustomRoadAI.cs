@@ -55,6 +55,7 @@ namespace TrafficManager_ImprovedAI
                                             nodeSim.TimedTrafficLightsActive = false;
 
                                             clearedNodes.Add(timedNode.nodeGroup[j]);
+                                            Debug.Log("removing timed lights for node: " + timedNode.nodeID);
                                             TrafficLightsTimed.RemoveTimedLight(timedNode.nodeGroup[j]);
                                         }
                                     }
@@ -73,6 +74,7 @@ namespace TrafficManager_ImprovedAI
                 {
                     for (var i = 0; i < clearedNodes.Count; i++)
                     {
+                        Debug.Log("removing node from simulation: " + clearedNodes[i]);
                         CustomRoadAI.RemoveNodeFromSimulation(clearedNodes[i]);
                     }
                 }

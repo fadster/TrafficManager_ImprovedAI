@@ -491,253 +491,270 @@ namespace TrafficManager_ImprovedAI
 
 						if (nodeSimulation == null || (nodeSimulation.FlagTimedTrafficLights && !nodeSimulation.TimedTrafficLightsActive))
 						{
-							RoadBaseAI.GetTrafficLightState(num4,
-								ref instance.m_segments.m_buffer[(int) prevPos.m_segment],
-								currentFrameIndex - num5, out vehicleLightState, out pedestrianLightState, out flag5,
-								out pedestrians);
-							if (!flag5 && num6 >= 196u)
-							{
-								flag5 = true;
-								RoadBaseAI.SetTrafficLightState(num4,
-									ref instance.m_segments.m_buffer[(int) prevPos.m_segment], currentFrameIndex - num5,
-									vehicleLightState, pedestrianLightState, flag5, pedestrians);
-							}
-
-							if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None ||
-								info.m_class.m_service != ItemClass.Service.Road)
-							{
-								switch (vehicleLightState)
-								{
-								case RoadBaseAI.TrafficLightState.RedToGreen:
-									if (num6 < 60u)
-									{
-										maxSpeed = 0f;
-										return;
-									}
-									break;
-								case RoadBaseAI.TrafficLightState.Red:
-									maxSpeed = 0f;
-									return;
-								case RoadBaseAI.TrafficLightState.GreenToRed:
-									if (num6 >= 30u)
-									{
-										maxSpeed = 0f;
-										return;
-									}
-									break;
-								}
-							}
+							try {
+                                RoadBaseAI.GetTrafficLightState(num4,
+                                    ref instance.m_segments.m_buffer[(int) prevPos.m_segment],
+                                    currentFrameIndex - num5, out vehicleLightState, out pedestrianLightState, out flag5,
+                                    out pedestrians);
+                                if (!flag5 && num6 >= 196u)
+                                {
+                                    flag5 = true;
+                                    RoadBaseAI.SetTrafficLightState(num4,
+                                        ref instance.m_segments.m_buffer[(int) prevPos.m_segment], currentFrameIndex - num5,
+                                        vehicleLightState, pedestrianLightState, flag5, pedestrians);
+                                }
+                                
+                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None ||
+                                    info.m_class.m_service != ItemClass.Service.Road)
+                                {
+                                    switch (vehicleLightState)
+                                    {
+                                    case RoadBaseAI.TrafficLightState.RedToGreen:
+                                        if (num6 < 60u)
+                                        {
+                                            maxSpeed = 0f;
+                                            return;
+                                        }
+                                        break;
+                                    case RoadBaseAI.TrafficLightState.Red:
+                                        maxSpeed = 0f;
+                                        return;
+                                    case RoadBaseAI.TrafficLightState.GreenToRed:
+                                        if (num6 >= 30u)
+                                        {
+                                            maxSpeed = 0f;
+                                            return;
+                                        }
+                                        break;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                Debug.Log("exception at stage 1: " + ex);
+                            }
 						}
 						else
 						{
-							var stopCar = false;
-
-							if (TrafficPriority.isLeftSegment(prevPos.m_segment, position.m_segment, num2))
-							{
-								vehicleLightState =
-									TrafficLightsManual.GetSegmentLight(num4, prevPos.m_segment).GetLightLeft();
-							}
-							else if (TrafficPriority.isRightSegment(prevPos.m_segment, position.m_segment, num2))
-							{
-								vehicleLightState =
-									TrafficLightsManual.GetSegmentLight(num4, prevPos.m_segment).GetLightRight();
-							}
-							else
-							{
-								vehicleLightState =
-									TrafficLightsManual.GetSegmentLight(num4, prevPos.m_segment).GetLightMain();
-							}
-
-							if (vehicleLightState == RoadBaseAI.TrafficLightState.Green)
-							{
-								var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
-
-								if (hasIncomingCars)
-								{
-									stopCar = true;
-								}
-							}
-
-							if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None ||
-								info.m_class.m_service != ItemClass.Service.Road)
-							{
-								switch (vehicleLightState)
-								{
-								case RoadBaseAI.TrafficLightState.RedToGreen:
-									if (num6 < 60u)
-									{
-										stopCar = true;
-									}
-									break;
-								case RoadBaseAI.TrafficLightState.Red:
-									stopCar = true;
-									break;
-								case RoadBaseAI.TrafficLightState.GreenToRed:
-									if (num6 >= 30u)
-									{
-										stopCar = true;
-									}
-									break;
-								}
-							}
-
-							if (stopCar)
-							{
-								maxSpeed = 0f;
-								return;
-							}
+							try {
+                                var stopCar = false;
+                                
+                                if (TrafficPriority.isLeftSegment(prevPos.m_segment, position.m_segment, num2))
+                                {
+                                    vehicleLightState =
+                                        TrafficLightsManual.GetSegmentLight(num4, prevPos.m_segment).GetLightLeft();
+                                }
+                                else if (TrafficPriority.isRightSegment(prevPos.m_segment, position.m_segment, num2))
+                                {
+                                    vehicleLightState =
+                                        TrafficLightsManual.GetSegmentLight(num4, prevPos.m_segment).GetLightRight();
+                                }
+                                else
+                                {
+                                    vehicleLightState =
+                                        TrafficLightsManual.GetSegmentLight(num4, prevPos.m_segment).GetLightMain();
+                                }
+                                
+                                if (vehicleLightState == RoadBaseAI.TrafficLightState.Green)
+                                {
+                                    var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
+                                
+                                    if (hasIncomingCars)
+                                    {
+                                        stopCar = true;
+                                    }
+                                }
+                                
+                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None ||
+                                    info.m_class.m_service != ItemClass.Service.Road)
+                                {
+                                    switch (vehicleLightState)
+                                    {
+                                    case RoadBaseAI.TrafficLightState.RedToGreen:
+                                        if (num6 < 60u)
+                                        {
+                                            stopCar = true;
+                                        }
+                                        break;
+                                    case RoadBaseAI.TrafficLightState.Red:
+                                        stopCar = true;
+                                        break;
+                                    case RoadBaseAI.TrafficLightState.GreenToRed:
+                                        if (num6 >= 30u)
+                                        {
+                                            stopCar = true;
+                                        }
+                                        break;
+                                    }
+                                }
+                                
+                                if (stopCar)
+                                {
+                                    maxSpeed = 0f;
+                                    return;
+                                }
+                            } catch (Exception ex) {
+                                Debug.Log("exception at stage 2: " + ex);
+                            }
 						}
 					}
 					else
 					{
-						if (vehicleData.Info.m_vehicleType == VehicleInfo.VehicleType.Car &&
-							TrafficPriority.vehicleList.ContainsKey(vehicleID) &&
-							TrafficPriority.isPrioritySegment(num2, prevPos.m_segment))
-						{
-							uint currentFrameIndex2 = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-							uint frame = currentFrameIndex2 >> 4;
-
-							var prioritySegment = TrafficPriority.getPrioritySegment(num2, prevPos.m_segment);
-
-							if (TrafficPriority.vehicleList[vehicleID].carState == PriorityCar.CarState.None)
-							{
-								TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Enter;
-							}
-
-							if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None &&
-								TrafficPriority.vehicleList[vehicleID].carState != PriorityCar.CarState.Leave)
-							{
-								if (prioritySegment.type == PrioritySegment.PriorityType.Stop)
-								{
-									if (TrafficPriority.vehicleList[vehicleID].waitTime < 75)
-									{
-										TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Stop;
-
-										if (vehicleData.GetLastFrameData().m_velocity.sqrMagnitude < 0.1f ||
-											TrafficPriority.vehicleList[vehicleID].stopped)
-										{
-											TrafficPriority.vehicleList[vehicleID].stopped = true;
-											TrafficPriority.vehicleList[vehicleID].waitTime++;
-
-											if (TrafficPriority.vehicleList[vehicleID].waitTime > 2)
-											{
-												var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
-
-												if (hasIncomingCars)
-												{
-													maxSpeed = 0f;
-													return;
-												}
-											}
-											else
-											{
-												maxSpeed = 0f;
-												return;
-											}
-										}
-										else
-										{
-											maxSpeed = 0f;
-											return;
-										}
-									}
-									else
-									{
-										TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Leave;
-									}
-								}
-								else if (prioritySegment.type == PrioritySegment.PriorityType.Yield)
-								{
-									if (TrafficPriority.vehicleList[vehicleID].waitTime < 75)
-									{
-										TrafficPriority.vehicleList[vehicleID].waitTime++;
-										TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Stop;
-										maxSpeed = 0f;
-
-										if (vehicleData.GetLastFrameData().m_velocity.sqrMagnitude <
-											TrafficPriority.vehicleList[vehicleID].yieldSpeedReduce)
-										{
-											var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
-
-											if (hasIncomingCars)
-											{
-												return;
-											}
-										}
-										else
-										{
-											return;
-										}
-									}
-									else
-									{
-										TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Leave;
-									}
-								}
-								else if (prioritySegment.type == PrioritySegment.PriorityType.Main)
-								{
-									TrafficPriority.vehicleList[vehicleID].waitTime++;
-									TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Stop;
-									maxSpeed = 0f;
-
-									var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
-
-									if (hasIncomingCars)
-									{
-										TrafficPriority.vehicleList[vehicleID].stopped = true;
-										return;
-									}
-									else
-									{
-										TrafficPriority.vehicleList[vehicleID].stopped = false;
-
-										NetInfo info3 = instance.m_segments.m_buffer[(int) position.m_segment].Info;
-										if (info3.m_lanes != null && info3.m_lanes.Length > (int) position.m_lane)
-										{
-											maxSpeed =
-												this.CalculateTargetSpeed(vehicleID, ref vehicleData,
-													info3.m_lanes[(int) position.m_lane].m_speedLimit,
-													instance.m_lanes.m_buffer[(int) ((UIntPtr) laneID)].m_curve)*0.8f;
-										}
-										else
-										{
-											maxSpeed = this.CalculateTargetSpeed(vehicleID, ref vehicleData, 1f, 0f)*
-												0.8f;
-										}
-										return;
-									}
-								}
-							}
-							else
-							{
-								TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Transit;
-							}
-						}
+						try {
+                            if (vehicleData.Info.m_vehicleType == VehicleInfo.VehicleType.Car &&
+                                TrafficPriority.vehicleList.ContainsKey(vehicleID) &&
+                                TrafficPriority.isPrioritySegment(num2, prevPos.m_segment))
+                            {
+                                uint currentFrameIndex2 = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+                                uint frame = currentFrameIndex2 >> 4;
+                            
+                                var prioritySegment = TrafficPriority.getPrioritySegment(num2, prevPos.m_segment);
+                            
+                                if (TrafficPriority.vehicleList[vehicleID].carState == PriorityCar.CarState.None)
+                                {
+                                    TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Enter;
+                                }
+                            
+                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None &&
+                                    TrafficPriority.vehicleList[vehicleID].carState != PriorityCar.CarState.Leave)
+                                {
+                                    if (prioritySegment.type == PrioritySegment.PriorityType.Stop)
+                                    {
+                                        if (TrafficPriority.vehicleList[vehicleID].waitTime < 75)
+                                        {
+                                            TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Stop;
+                            
+                                            if (vehicleData.GetLastFrameData().m_velocity.sqrMagnitude < 0.1f ||
+                                                TrafficPriority.vehicleList[vehicleID].stopped)
+                                            {
+                                                TrafficPriority.vehicleList[vehicleID].stopped = true;
+                                                TrafficPriority.vehicleList[vehicleID].waitTime++;
+                            
+                                                if (TrafficPriority.vehicleList[vehicleID].waitTime > 2)
+                                                {
+                                                    var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
+                            
+                                                    if (hasIncomingCars)
+                                                    {
+                                                        maxSpeed = 0f;
+                                                        return;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    maxSpeed = 0f;
+                                                    return;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                maxSpeed = 0f;
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Leave;
+                                        }
+                                    }
+                                    else if (prioritySegment.type == PrioritySegment.PriorityType.Yield)
+                                    {
+                                        if (TrafficPriority.vehicleList[vehicleID].waitTime < 75)
+                                        {
+                                            TrafficPriority.vehicleList[vehicleID].waitTime++;
+                                            TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Stop;
+                                            maxSpeed = 0f;
+                            
+                                            if (vehicleData.GetLastFrameData().m_velocity.sqrMagnitude <
+                                                TrafficPriority.vehicleList[vehicleID].yieldSpeedReduce)
+                                            {
+                                                var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
+                            
+                                                if (hasIncomingCars)
+                                                {
+                                                    return;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Leave;
+                                        }
+                                    }
+                                    else if (prioritySegment.type == PrioritySegment.PriorityType.Main)
+                                    {
+                                        TrafficPriority.vehicleList[vehicleID].waitTime++;
+                                        TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Stop;
+                                        maxSpeed = 0f;
+                            
+                                        var hasIncomingCars = TrafficPriority.incomingVehicles(vehicleID, num2);
+                            
+                                        if (hasIncomingCars)
+                                        {
+                                            TrafficPriority.vehicleList[vehicleID].stopped = true;
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            TrafficPriority.vehicleList[vehicleID].stopped = false;
+                            
+                                            NetInfo info3 = instance.m_segments.m_buffer[(int) position.m_segment].Info;
+                                            if (info3.m_lanes != null && info3.m_lanes.Length > (int) position.m_lane)
+                                            {
+                                                maxSpeed =
+                                                    this.CalculateTargetSpeed(vehicleID, ref vehicleData,
+                                                        info3.m_lanes[(int) position.m_lane].m_speedLimit,
+                                                        instance.m_lanes.m_buffer[(int) ((UIntPtr) laneID)].m_curve)*0.8f;
+                                            }
+                                            else
+                                            {
+                                                maxSpeed = this.CalculateTargetSpeed(vehicleID, ref vehicleData, 1f, 0f)*
+                                                    0.8f;
+                                            }
+                                            return;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Transit;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            Debug.Log("exception at stage 3: " + ex);
+                        }
 					}
 				}
 			}
 
-			NetInfo info2 = instance.m_segments.m_buffer[(int)position.m_segment].Info;
-			if (info2.m_lanes != null && info2.m_lanes.Length > (int)position.m_lane)
-			{
-				var laneSpeedLimit = info2.m_lanes[(int) position.m_lane].m_speedLimit;
-
-				if (TrafficRoadRestrictions.isSegment(position.m_segment))
-				{
-					var restrictionSegment = TrafficRoadRestrictions.getSegment(position.m_segment);
-
-					if (restrictionSegment.speedLimits[(int) position.m_lane] > 0.1f)
-					{
-						laneSpeedLimit = restrictionSegment.speedLimits[(int) position.m_lane];
-					}
-				}
-
-				maxSpeed = this.CalculateTargetSpeed(vehicleID, ref vehicleData, laneSpeedLimit, instance.m_lanes.m_buffer[(int)((UIntPtr)laneID)].m_curve);
-			}
-			else
-			{
-				maxSpeed = this.CalculateTargetSpeed(vehicleID, ref vehicleData, 1f, 0f);
-			}
+			try {
+                NetInfo info2 = instance.m_segments.m_buffer[(int)position.m_segment].Info;
+                if (info2.m_lanes != null && info2.m_lanes.Length > (int)position.m_lane)
+                {
+                    var laneSpeedLimit = info2.m_lanes[(int) position.m_lane].m_speedLimit;
+                
+                    if (TrafficRoadRestrictions.isSegment(position.m_segment))
+                    {
+                        var restrictionSegment = TrafficRoadRestrictions.getSegment(position.m_segment);
+                
+                        if (restrictionSegment.speedLimits[(int) position.m_lane] > 0.1f)
+                        {
+                            laneSpeedLimit = restrictionSegment.speedLimits[(int) position.m_lane];
+                        }
+                    }
+                
+                    maxSpeed = this.CalculateTargetSpeed(vehicleID, ref vehicleData, laneSpeedLimit, instance.m_lanes.m_buffer[(int)((UIntPtr)laneID)].m_curve);
+                }
+                else
+                {
+                    maxSpeed = this.CalculateTargetSpeed(vehicleID, ref vehicleData, 1f, 0f);
+                }
+            } catch (Exception ex) {
+                Debug.Log("exception at stage 4: " + ex);
+                maxSpeed = 0f;
+            }
 		}
 			
         #region Stock Methods
