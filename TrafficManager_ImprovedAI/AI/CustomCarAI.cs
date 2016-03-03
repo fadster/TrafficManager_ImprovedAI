@@ -346,7 +346,7 @@ namespace TrafficManager_ImprovedAI
 
 		protected override void CalculateSegmentPosition(ushort vehicleID, ref Vehicle vehicleData, PathUnit.Position nextPosition,
 			PathUnit.Position position, uint laneID, byte offset, PathUnit.Position prevPos, uint prevLaneID,
-			byte prevOffset, out Vector3 pos, out Vector3 dir, out float maxSpeed)
+			byte prevOffset, int index, out Vector3 pos, out Vector3 dir, out float maxSpeed)
 		{
 			NetManager instance = Singleton<NetManager>.instance;
 			instance.m_lanes.m_buffer[(int)((UIntPtr)laneID)].CalculatePositionAndDirection((float)offset * 0.003921569f, out pos, out dir);

@@ -496,8 +496,10 @@ namespace TrafficManager_ImprovedAI
             //Configuration.Serialize(filepath, configuration);
             Configuration.Serialize(SerializableData, saveDataID, configuration);
 
+            /*
             GenerateUniqueID();
             Configuration.Serialize(Path.Combine(Application.dataPath, "trafficManagerSave_" + uniqueID + ".xml"), configuration);
+            */
         }
     }
 

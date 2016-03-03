@@ -27,9 +27,11 @@ namespace TrafficManager_ImprovedAI
         {
             UIHelperBase group = helper.AddGroup("Traffic Manager + Improved AI");
             group.AddCheckbox("Ignore saved data on startup", LoadingExtension.ignoreSavedData, delegate(bool c) { LoadingExtension.ignoreSavedData = c; });
+            /*
             group.AddSpace(3);
             group.AddGroup("Enable if errors on startup prevent the game from loading correctly.");
             group.AddGroup("NOTE: This setting will be automatically disabled after startup!");
+            */
         }
 	}
   
@@ -71,7 +73,7 @@ namespace TrafficManager_ImprovedAI
                         new Type[] {
                             typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(PathUnit.Position),
                             typeof(PathUnit.Position), typeof(uint), typeof(byte), typeof(PathUnit.Position),
-                            typeof(uint), typeof(byte), typeof(Vector3).MakeByRefType(),
+                            typeof(uint), typeof(byte), typeof(int), typeof(Vector3).MakeByRefType(),
                             typeof(Vector3).MakeByRefType(), typeof(float).MakeByRefType()
                         },
                         null),
@@ -80,7 +82,7 @@ namespace TrafficManager_ImprovedAI
                         new Type[] {
                             typeof(ushort), typeof(Vehicle).MakeByRefType(), typeof(PathUnit.Position),
                             typeof(PathUnit.Position), typeof(uint), typeof(byte), typeof(PathUnit.Position),
-                            typeof(uint), typeof(byte), typeof(Vector3).MakeByRefType(),
+                            typeof(uint), typeof(byte), typeof(int), typeof(Vector3).MakeByRefType(),
                             typeof(Vector3).MakeByRefType(), typeof(float).MakeByRefType()
                         },
                         null));
@@ -115,6 +117,7 @@ namespace TrafficManager_ImprovedAI
 			}
             */
 
+            /*
             if (Event.current.alt && Input.GetKeyDown(KeyCode.D)) {
                 var info = new RoadInfo();
                 var netManager = Singleton<NetManager>.instance;
@@ -141,6 +144,7 @@ namespace TrafficManager_ImprovedAI
                 Debug.Log("found " + nodeCount + " nodes");
                 RoadInfo.DumpRoadInfo(info);
             }
+            */
 		}
 	}
 
