@@ -32,18 +32,18 @@ namespace TrafficManager_ImprovedAI
             float num5 = num3 * num3;
             int i = 0;
             bool flag = false;
-            if ((sqrMagnitude < num4 || vehicleData.m_targetPos3.w < 0.01f) && (leaderData.m_flags & (Vehicle.Flags.WaitingPath | Vehicle.Flags.Stopped)) == Vehicle.Flags.None)
+            if ((sqrMagnitude < num4 || vehicleData.m_targetPos3.w < 0.01f) && (leaderData.m_flags & (Vehicle.Flags.WaitingPath | Vehicle.Flags.Stopped)) == (Vehicle.Flags) 0)
             {
                 if (leaderData.m_path != 0u)
                 {
                     base.UpdatePathTargetPositions(vehicleID, ref vehicleData, frameData.m_position, ref i, 4, num4, num5);
-                    if ((leaderData.m_flags & Vehicle.Flags.Spawned) == Vehicle.Flags.None)
+                    if ((leaderData.m_flags & Vehicle.Flags.Spawned) == (Vehicle.Flags) 0)
                     {
                         frameData = vehicleData.m_frame0;
                         return;
                     }
                 }
-                if ((leaderData.m_flags & Vehicle.Flags.WaitingPath) == Vehicle.Flags.None)
+                if ((leaderData.m_flags & Vehicle.Flags.WaitingPath) == (Vehicle.Flags) 0)
                 {
                     while (i < 4)
                     {
@@ -79,7 +79,7 @@ namespace TrafficManager_ImprovedAI
                 vector = (Vector3)vehicleData.m_targetPos0 - frameData.m_position;
                 sqrMagnitude = vector.sqrMagnitude;
             }
-            if (leaderData.m_path != 0u && (leaderData.m_flags & Vehicle.Flags.WaitingPath) == Vehicle.Flags.None)
+            if (leaderData.m_path != 0u && (leaderData.m_flags & Vehicle.Flags.WaitingPath) == (Vehicle.Flags) 0)
             {
                 NetManager instance = Singleton<NetManager>.instance;
                 byte b = leaderData.m_pathPositionIndex;
@@ -175,7 +175,7 @@ namespace TrafficManager_ImprovedAI
                 /* ----------------------------------------------------------------- */
             }
             float num10;
-            if ((leaderData.m_flags & Vehicle.Flags.Stopped) != Vehicle.Flags.None)
+            if ((leaderData.m_flags & Vehicle.Flags.Stopped) != (Vehicle.Flags) 0)
             {
                 num10 = 0f;
             }
@@ -282,7 +282,7 @@ namespace TrafficManager_ImprovedAI
                 }
                 return;
             }
-            if ((leaderData.m_flags & Vehicle.Flags.Stopped) == Vehicle.Flags.None && num10 < 0.1f)
+            if ((leaderData.m_flags & Vehicle.Flags.Stopped) == (Vehicle.Flags) 0 && num10 < 0.1f)
             {
                 flag5 = true;
             }
@@ -320,9 +320,9 @@ namespace TrafficManager_ImprovedAI
             frameData.m_lightIntensity.y = ((a2.z >= -0.1f) ? 0.5f : 5f);
             frameData.m_lightIntensity.z = ((num12 >= -0.1f || !flag7) ? 0f : 5f);
             frameData.m_lightIntensity.w = ((num12 <= 0.1f || !flag7) ? 0f : 5f);
-            frameData.m_underground = ((vehicleData.m_flags & Vehicle.Flags.Underground) != Vehicle.Flags.None);
-            frameData.m_transition = ((vehicleData.m_flags & Vehicle.Flags.Transition) != Vehicle.Flags.None);
-            if ((vehicleData.m_flags & Vehicle.Flags.Parking) != Vehicle.Flags.None && num13 <= 1f && flag)
+            frameData.m_underground = ((vehicleData.m_flags & Vehicle.Flags.Underground) != (Vehicle.Flags) 0);
+            frameData.m_transition = ((vehicleData.m_flags & Vehicle.Flags.Transition) != (Vehicle.Flags) 0);
+            if ((vehicleData.m_flags & Vehicle.Flags.Parking) != (Vehicle.Flags) 0 && num13 <= 1f && flag)
             {
                 Vector3 forward = vehicleData.m_targetPos1 - vehicleData.m_targetPos0;
                 if (forward.sqrMagnitude > 0.01f)
@@ -504,7 +504,7 @@ namespace TrafficManager_ImprovedAI
                                         vehicleLightState, pedestrianLightState, flag5, pedestrians);
                                 }
                                 
-                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None ||
+                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == (Vehicle.Flags) 0 ||
                                     info.m_class.m_service != ItemClass.Service.Road)
                                 {
                                     switch (vehicleLightState)
@@ -563,7 +563,7 @@ namespace TrafficManager_ImprovedAI
                                     }
                                 }
                                 
-                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None ||
+                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == (Vehicle.Flags) 0 ||
                                     info.m_class.m_service != ItemClass.Service.Road)
                                 {
                                     switch (vehicleLightState)
@@ -613,7 +613,7 @@ namespace TrafficManager_ImprovedAI
                                     TrafficPriority.vehicleList[vehicleID].carState = PriorityCar.CarState.Enter;
                                 }
                             
-                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == Vehicle.Flags.None &&
+                                if ((vehicleData.m_flags & Vehicle.Flags.Emergency2) == (Vehicle.Flags) 0 &&
                                     TrafficPriority.vehicleList[vehicleID].carState != PriorityCar.CarState.Leave)
                                 {
                                     if (prioritySegment.type == PrioritySegment.PriorityType.Stop)
@@ -767,7 +767,7 @@ namespace TrafficManager_ImprovedAI
 
         private static bool DisableCollisionCheck(ushort vehicleID, ref Vehicle vehicleData)
         {
-            if ((vehicleData.m_flags & Vehicle.Flags.Arriving) != Vehicle.Flags.None)
+            if ((vehicleData.m_flags & Vehicle.Flags.Arriving) != (Vehicle.Flags) 0)
             {
                 float num = Mathf.Max(Mathf.Abs(vehicleData.m_targetPos3.x), Mathf.Abs(vehicleData.m_targetPos3.z));
                 float num2 = 8640f;
@@ -857,7 +857,7 @@ namespace TrafficManager_ImprovedAI
 
         private ushort CheckCitizen(ushort vehicleID, ref Vehicle vehicleData, Segment3 segment, float lastLen, float nextLen, ref float maxSpeed, ref bool blocked, float maxBraking, ushort otherID, ref CitizenInstance otherData, Vector3 min, Vector3 max)
         {
-            if ((vehicleData.m_flags & Vehicle.Flags.Transition) == Vehicle.Flags.None && (otherData.m_flags & CitizenInstance.Flags.Transition) == CitizenInstance.Flags.None && (vehicleData.m_flags & Vehicle.Flags.Underground) != Vehicle.Flags.None != ((otherData.m_flags & CitizenInstance.Flags.Underground) != CitizenInstance.Flags.None))
+            if ((vehicleData.m_flags & Vehicle.Flags.Transition) == (Vehicle.Flags) 0 && (otherData.m_flags & CitizenInstance.Flags.Transition) == CitizenInstance.Flags.None && (vehicleData.m_flags & Vehicle.Flags.Underground) != (Vehicle.Flags) 0 != ((otherData.m_flags & CitizenInstance.Flags.Underground) != CitizenInstance.Flags.None))
             {
                 return otherData.m_nextGridInstance;
             }
@@ -897,7 +897,7 @@ namespace TrafficManager_ImprovedAI
                 {
                     return otherData.m_nextGridVehicle;
                 }
-                if (((vehicleData.m_flags | otherData.m_flags) & Vehicle.Flags.Transition) == Vehicle.Flags.None && (vehicleData.m_flags & Vehicle.Flags.Underground) != (otherData.m_flags & Vehicle.Flags.Underground))
+                if (((vehicleData.m_flags | otherData.m_flags) & Vehicle.Flags.Transition) == (Vehicle.Flags) 0 && (vehicleData.m_flags & Vehicle.Flags.Underground) != (otherData.m_flags & Vehicle.Flags.Underground))
                 {
                     return otherData.m_nextGridVehicle;
                 }
@@ -1081,7 +1081,7 @@ namespace TrafficManager_ImprovedAI
                 data.m_flags &= ~Vehicle.Flags.Congestion;
             }
 
-            if ((data.m_flags & Vehicle.Flags.Congestion) != Vehicle.Flags.None)
+            if ((data.m_flags & Vehicle.Flags.Congestion) != (Vehicle.Flags) 0)
             {
                 Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
             }
@@ -1111,13 +1111,13 @@ namespace TrafficManager_ImprovedAI
                 data.m_flags &= ~Vehicle.Flags.Congestion;
             }
 
-            if ((data.m_flags & Vehicle.Flags.Congestion) != Vehicle.Flags.None)
+            if ((data.m_flags & Vehicle.Flags.Congestion) != (Vehicle.Flags) 0)
             {
                 Singleton<VehicleManager>.instance.ReleaseVehicle(vehicleID);
             }
             else
             {
-                if ((data.m_flags & Vehicle.Flags.WaitingTarget) != Vehicle.Flags.None && (data.m_waitCounter += 1) > 20)
+                if ((data.m_flags & Vehicle.Flags.WaitingTarget) != (Vehicle.Flags) 0 && (data.m_waitCounter += 1) > 20)
                 {
                     this.RemoveOffers(vehicleID, ref data);
                     data.m_flags &= ~Vehicle.Flags.WaitingTarget;
@@ -1134,15 +1134,15 @@ namespace TrafficManager_ImprovedAI
 
         private void RemoveOffers(ushort vehicleID, ref Vehicle data)
         {
-            if ((data.m_flags & Vehicle.Flags.WaitingTarget) != Vehicle.Flags.None)
+            if ((data.m_flags & Vehicle.Flags.WaitingTarget) != (Vehicle.Flags) 0)
             {
                 TransferManager.TransferOffer offer = default(TransferManager.TransferOffer);
                 offer.Vehicle = vehicleID;
-                if ((data.m_flags & Vehicle.Flags.TransferToSource) != Vehicle.Flags.None)
+                if ((data.m_flags & Vehicle.Flags.TransferToSource) != (Vehicle.Flags) 0)
                 {
                     Singleton<TransferManager>.instance.RemoveIncomingOffer((TransferManager.TransferReason)data.m_transferType, offer);
                 }
-                else if ((data.m_flags & Vehicle.Flags.TransferToTarget) != Vehicle.Flags.None)
+                else if ((data.m_flags & Vehicle.Flags.TransferToTarget) != (Vehicle.Flags) 0)
                 {
                     Singleton<TransferManager>.instance.RemoveOutgoingOffer((TransferManager.TransferReason)data.m_transferType, offer);
                 }

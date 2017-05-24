@@ -374,7 +374,7 @@ namespace TrafficManager_ImprovedAI
                 GuideController properties = Singleton<GuideManager>.instance.m_properties;
                 if (properties != null)
                 {
-                    instance.m_outsideNodeNotConnected.Activate(properties.m_outsideNotConnected, nodeID, Notification.Problem.RoadNotConnected);
+                    instance.m_outsideNodeNotConnected.Activate(properties.m_outsideNotConnected, nodeID, Notification.Problem.RoadNotConnected, false);
                 }
             }
         }
